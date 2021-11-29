@@ -1,0 +1,15 @@
+[submodule "themes/ananke"]
+	path = themes/ananke
+	url = https://github.com/theNewDynamic/gohugo-theme-ananke.git
+[submodule "themes/tale"]
+	path = themes/tale
+	url = https://github.com/EmielH/tale-hugo.git
+[submodule "themes/themes/hello-friend"]
+	path = themes/themes/hello-friend
+	url = https://github.com/panr/hugo-theme-hello-friend.git
+[submodule "themes/hello-friend"]
+	path = themes/hello-friend
+	url = https://github.com/panr/hugo-theme-hello-friend.git
+[submodule "themes/allegiant"]
+	path = themes/allegiant
+	url = https://github.com/brycematheson/allegiant.git
