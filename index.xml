@@ -6,6 +6,14 @@ mutexLocked — 表示互斥锁的锁定状态； mutexWoken — 表示从正常
 在正常模式下，锁的等待者会按照先进先出的顺序获取锁。但是刚被唤起的 Goroutine 与新创建的 Goroutine 竞争时，大概率会获取不到锁，为了减少这种情况的出现，一旦 Goroutine 超过 1ms 没有获取到锁，它就会将当前互斥锁切换饥饿模式，防止部分 Goroutine 被『饿死』。
 图 6-7 互斥锁的正常模式与饥饿模式
 饥饿模式是在 Go 语言 1.9 版本引入的优化1，引入的目的是保证互斥锁的公平性（Fairness）。
-在饥饿模式中，互斥锁会直接交给等待队列最前面的 Goroutine。新的 Goroutine 在该状态下不能获取锁、也不会进入自旋状态，它们只会在队列的末尾等待。如果一个 Goroutine 获得了互斥锁并且它在队列的末尾或者它等待的时间少于 1ms，那么当前的互斥锁就会被切换回正常模式。</description></item><item><title>My First Post</title><link>/posts/my-first-post/</link><pubDate>Mon, 29 Nov 2021 11:14:03 +0800</pubDate><guid>/posts/my-first-post/</guid><description>
-hello hugo!!!</description></item><item><title>哈哈哈哈</title><link>/posts/my/</link><pubDate>Mon, 29 Nov 2021 11:14:03 +0800</pubDate><guid>/posts/my/</guid><description>
-hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!!</description></item></channel></rss>
+在饥饿模式中，互斥锁会直接交给等待队列最前面的 Goroutine。新的 Goroutine 在该状态下不能获取锁、也不会进入自旋状态，它们只会在队列的末尾等待。如果一个 Goroutine 获得了互斥锁并且它在队列的末尾或者它等待的时间少于 1ms，那么当前的互斥锁就会被切换回正常模式。</description></item><item><title>linux相关指令</title><link>/posts/linux%E7%9B%B8%E5%85%B3%E6%8C%87%E4%BB%A4/</link><pubDate>Mon, 29 Nov 2021 11:14:03 +0800</pubDate><guid>/posts/linux%E7%9B%B8%E5%85%B3%E6%8C%87%E4%BB%A4/</guid><description>
+Ubuntu命令大全 apt-get apt-get update:更新安装列表 apt-get upgrade:升级软件 apt-get install software_name :安装软件 apt-get &amp;ndash;purge remove software_name :卸载软件及其配置 apt-get autoremove software_name:卸载软件及其依赖的安装包
+罗列已安装软件 dpkg &amp;ndash;list
+//安装.debtmpfs 7.8G 133M 7.7G 2% /tmp /dev/sda 1.8T 155G 1.6T 9% /home/gongqi/MountFiles /dev/sdb1 300M 280K 300M 1% /boot/efi /dev/loop1 32M 32M 0 100% /var/lib/snapd/snap/snapd/10707
+​ sudo dpkg -i &amp;lt;package.deb&amp;gt;
+sudo uname -m
+查看Ubuntu系统的位数
+界面切换 ctrl+alt+f2 //命令行界面
+ctrl+alt+f7 // 图形界面
+查看帮助 &amp;ndash;help</description></item><item><title>My First Post</title><link>/posts/my-first-post/</link><pubDate>Mon, 29 Nov 2021 11:14:03 +0800</pubDate><guid>/posts/my-first-post/</guid><description>
+hello hugo!!!</description></item></channel></rss>
