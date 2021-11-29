@@ -42,6 +42,34 @@
     </item>
     
     <item>
+      <title>linux相关指令</title>
+      <link>/posts/linux%E7%9B%B8%E5%85%B3%E6%8C%87%E4%BB%A4/</link>
+      <pubDate>Mon, 29 Nov 2021 11:14:03 +0800</pubDate>
+      
+      <guid>/posts/linux%E7%9B%B8%E5%85%B3%E6%8C%87%E4%BB%A4/</guid>
+      <description>
+        
+          
+          
+          
+        
+        
+        
+          Ubuntu命令大全 apt-get  apt-get update:更新安装列表 apt-get upgrade:升级软件 apt-get install software_name :安装软件 apt-get &amp;ndash;purge remove software_name :卸载软件及其配置 apt-get autoremove software_name:卸载软件及其依赖的安装包
+ 罗列已安装软件  dpkg &amp;ndash;list
+ //安装.debtmpfs 7.8G 133M 7.7G 2% /tmp /dev/sda 1.8T 155G 1.6T 9% /home/gongqi/MountFiles /dev/sdb1 300M 280K 300M 1% /boot/efi /dev/loop1 32M 32M 0 100% /var/lib/snapd/snap/snapd/10707
+​ sudo dpkg -i &amp;lt;package.deb&amp;gt;
+sudo uname -m
+ 查看Ubuntu系统的位数
+ 界面切换  ctrl+alt+f2 //命令行界面
+ctrl+alt+f7 // 图形界面
+ 查看帮助   &amp;ndash;help
+          
+        
+        </description>
+    </item>
+    
+    <item>
       <title>My First Post</title>
       <link>/posts/my-first-post/</link>
       <pubDate>Mon, 29 Nov 2021 11:14:03 +0800</pubDate>
@@ -56,26 +84,6 @@
         
         
           hello hugo!!!
-          
-        
-        </description>
-    </item>
-    
-    <item>
-      <title>哈哈哈哈</title>
-      <link>/posts/my/</link>
-      <pubDate>Mon, 29 Nov 2021 11:14:03 +0800</pubDate>
-      
-      <guid>/posts/my/</guid>
-      <description>
-        
-          
-          
-          
-        
-        
-        
-          hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!!
           
         
         </description>

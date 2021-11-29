@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    
+      <title>
+        linux相关指令 ::
+        K:)eep — A simple theme for Hugo
+      </title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta
+  name="description"
+  content="Ubuntu命令大全 apt-get  apt-get update:更新安装列表 apt-get upgrade:升级软件 apt-get install software_name :安装软件 apt-get &amp;ndash;purge remove software_name :卸载软件及其配置 apt-get autoremove software_name:卸载软件及其依赖的安装包
+ 罗列已安装软件  dpkg &amp;ndash;list
+ //安装.debtmpfs 7.8G 133M 7.7G 2% /tmp /dev/sda 1.8T 155G 1.6T 9% /home/gongqi/MountFiles /dev/sdb1 300M 280K 300M 1% /boot/efi /dev/loop1 32M 32M 0 100% /var/lib/snapd/snap/snapd/10707
+​ sudo dpkg -i &amp;lt;package.deb&amp;gt;
+sudo uname -m
+ 查看Ubuntu系统的位数
+ 界面切换  ctrl&#43;alt&#43;f2 //命令行界面
+ctrl&#43;alt&#43;f7 // 图形界面
+ 查看帮助   &amp;ndash;help"
+/>
+<meta
+  name="keywords"
+  content=""
+/>
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="/posts/linux%E7%9B%B8%E5%85%B3%E6%8C%87%E4%BB%A4/" />
+
+
+
+
+
+<link rel="stylesheet" href="/assets/style.css" />
+
+<link rel="stylesheet" href="/style.css" />
+
+
+<link
+  rel="apple-touch-icon-precomposed"
+  sizes="144x144"
+  href="/img/apple-touch-icon-144-precomposed.png"
+/>
+<link rel="shortcut icon" href="/img/favicon.png" />
+
+
+<link href="/assets/fonts/Inter-Italic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/assets/fonts/Inter-Regular.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/assets/fonts/Inter-Medium.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/assets/fonts/Inter-MediumItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/assets/fonts/Inter-Bold.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/assets/fonts/Inter-BoldItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="linux相关指令"/>
+<meta name="twitter:description" content="Ubuntu命令大全 apt-get  apt-get update:更新安装列表 apt-get upgrade:升级软件 apt-get install software_name :安装软件 apt-get &ndash;purge remove software_name :卸载软件及其配置 apt-get autoremove software_name:卸载软件及其依赖的安装包
+ 罗列已安装软件  dpkg &ndash;list
+ //安装.debtmpfs 7.8G 133M 7.7G 2% /tmp /dev/sda 1.8T 155G 1.6T 9% /home/gongqi/MountFiles /dev/sdb1 300M 280K 300M 1% /boot/efi /dev/loop1 32M 32M 0 100% /var/lib/snapd/snap/snapd/10707
+​ sudo dpkg -i &lt;package.deb&gt;
+sudo uname -m
+ 查看Ubuntu系统的位数
+ 界面切换  ctrl&#43;alt&#43;f2 //命令行界面
+ctrl&#43;alt&#43;f7 // 图形界面
+ 查看帮助   &ndash;help"/>
+
+
+
+<meta property="og:title" content="linux相关指令" />
+<meta property="og:description" content="Ubuntu命令大全 apt-get  apt-get update:更新安装列表 apt-get upgrade:升级软件 apt-get install software_name :安装软件 apt-get &ndash;purge remove software_name :卸载软件及其配置 apt-get autoremove software_name:卸载软件及其依赖的安装包
+ 罗列已安装软件  dpkg &ndash;list
+ //安装.debtmpfs 7.8G 133M 7.7G 2% /tmp /dev/sda 1.8T 155G 1.6T 9% /home/gongqi/MountFiles /dev/sdb1 300M 280K 300M 1% /boot/efi /dev/loop1 32M 32M 0 100% /var/lib/snapd/snap/snapd/10707
+​ sudo dpkg -i &lt;package.deb&gt;
+sudo uname -m
+ 查看Ubuntu系统的位数
+ 界面切换  ctrl&#43;alt&#43;f2 //命令行界面
+ctrl&#43;alt&#43;f7 // 图形界面
+ 查看帮助   &ndash;help" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/posts/linux%E7%9B%B8%E5%85%B3%E6%8C%87%E4%BB%A4/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-11-29T11:14:03+08:00" />
+<meta property="article:modified_time" content="2021-11-29T11:14:03+08:00" /><meta property="og:site_name" content="K:)eep" />
+
+
+
+
+
+
+
+  </head>
+  <body class="dark-theme">
+    <div class="container">
+      <header class="header">
+  <span class="header__inner">
+    <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >K:)eep</span
+    >
+    <span class="logo__cursor"></span>
+  
+</a>
+
+    <span class="header__right">
+      
+        <nav class="menu">
+  <ul class="menu__inner menu__inner--desktop">
+    
+      
+        
+          <li><a href="https://github.com/gongqij">Github</a></li>
+        
+      
+        
+          <li><a href="http://localhost:1313/">Home</a></li>
+        
+      
+      
+      
+  </ul>
+
+  <ul class="menu__inner menu__inner--mobile">
+    
+      
+        <li><a href="https://github.com/gongqij">Github</a></li>
+      
+    
+      
+        <li><a href="http://localhost:1313/">Home</a></li>
+      
+    
+  </ul>
+</nav>
+
+        <span class="menu-trigger">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M0 0h24v24H0z" fill="none" />
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+          </svg>
+        </span>
+      
+      <span class="theme-toggle">
+        <svg
+  class="theme-toggler"
+  width="24"
+  height="24"
+  viewBox="0 0 48 48"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M22 41C32.4934 41 41 32.4934 41 22C41 11.5066 32.4934 3 22
+  3C11.5066 3 3 11.5066 3 22C3 32.4934 11.5066 41 22 41ZM7 22C7
+  13.7157 13.7157 7 22 7V37C13.7157 37 7 30.2843 7 22Z"
+  />
+</svg>
+
+      </span>
+    </span>
+  </span>
+</header>
+
+
+      <div class="content">
+        
+  
+  
+
+  <div class="post">
+    <h1 class="post-title">linux相关指令</h1>
+    <div class="post-meta">
+      
+        <span class="post-date">
+          2021-11-29
+        </span>
+
+        
+          
+        
+      
+
+      
+
+
+      
+    </div>
+
+    
+
+    
+
+    <div class="post-content">
+      
+      <h1 id="ubuntu命令大全">Ubuntu命令大全</h1>
+<h3 id="apt-get">apt-get</h3>
+<blockquote>
+<p>apt-get update:更新安装列表
+apt-get upgrade:升级软件
+apt-get install software_name :安装软件
+apt-get &ndash;purge remove  software_name :卸载软件及其配置
+apt-get autoremove software_name:卸载软件及其依赖的安装包</p>
+</blockquote>
+<h3 id="罗列已安装软件">罗列已安装软件</h3>
+<blockquote>
+<p>dpkg &ndash;list</p>
+</blockquote>
+<p>//安装.debtmpfs           7.8G  133M  7.7G   2% /tmp
+/dev/sda        1.8T  155G  1.6T   9% /home/gongqi/MountFiles
+/dev/sdb1       300M  280K  300M   1% /boot/efi
+/dev/loop1       32M   32M     0 100% /var/lib/snapd/snap/snapd/10707</p>
+<p>​        sudo dpkg -i &lt;package.deb&gt;</p>
+<p>sudo uname -m</p>
+<blockquote>
+<p>查看Ubuntu系统的位数</p>
+</blockquote>
+<h3 id="界面切换">界面切换</h3>
+<blockquote>
+<p>ctrl+alt+f2 //命令行界面</p>
+<p>ctrl+alt+f7 // 图形界面</p>
+</blockquote>
+<h3 id="查看帮助">查看帮助</h3>
+<ul>
+<li>
+<p>&ndash;help</p>
+</li>
+<li>
+<p>man 手册：</p>
+<ul>
+<li>9卷：man man
+<ul>
+<li>
+<ol>
+<li>shell 命令帮助信息</li>
+<li>系统调用 帮助信息</li>
+<li>库函数 帮助信息</li>
+<li>第5卷， 文件格式： 如，man passwd</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>命令使用技巧</p>
+<ol>
+<li>快速补齐命令、文件、目录名 ——&gt; Tab 键</li>
+<li>history 列出过往执行过的命令。 使用 ! 编号 执行过往命令</li>
+<li>ctrl + p 列出上一条命令</li>
+<li>ctrl + n 列出下一条命令</li>
+<li>ctrl + a 将光标移至行首</li>
+<li>ctrl + e 将光标移至行尾</li>
+<li>ctrl + u 清空光标以前的命令</li>
+</ol>
+</li>
+</ul>
+<h3 id="ls--l-命令">ls -l 命令</h3>
+<ul>
+<li>
+<p>7部分内容：</p>
+<ol>
+<li>
+<p>文件属性</p>
+<ol>
+<li>文件类型：</li>
+</ol>
+<ul>
+<li>
+<p>Linux系统，不以后缀名作为区分文件类型的依据。</p>
+<ol>
+<li>普通文件 - 			占用磁盘存储</li>
+<li>目录文件 d			占用磁盘存储</li>
+<li>软链接（win 快捷方式）l			占用磁盘存储</li>
+<li>字符设备 c			不占用磁盘存储（伪文件）</li>
+<li>块设备 b			不占用磁盘存储（伪文件）</li>
+<li>管道文件 p			不占用磁盘存储（伪文件）</li>
+<li>套接字 s			不占用磁盘存储（伪文件）</li>
+<li>未知（unknow）</li>
+</ol>
+</li>
+</ul>
+<ol start="9">
+<li>
+<p>文件访问权限</p>
+<ol>
+<li>u：所有者： rwx 读写执行</li>
+<li>g：所属组： rwx 读写执行</li>
+<li>o：其他人： rwx 读写执行</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>
+<p>硬链接计数：硬链接个数。</p>
+</li>
+<li>
+<p>文件所有者</p>
+</li>
+<li>
+<p>文件的所属组。</p>
+</li>
+<li>
+<p>文件大小：单位字节。</p>
+<ul>
+<li>普通文件：实际大小</li>
+<li>目录文件：占用磁盘存储大小 (4K 整数倍)</li>
+</ul>
+</li>
+<li>
+<p>时间：</p>
+<p>创建、或最后修改时间。</p>
+</li>
+<li>
+<p>文件名。</p>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="ls-命令的其他参">ls 命令的其他参</h3>
+<ol>
+<li>-a ： all，查询所有文件。
+<ul>
+<li>Linux系统中，以“.”开头的文件是 隐藏。</li>
+</ul>
+</li>
+<li>-d：查看目录本身信息。
+<ul>
+<li>ls -l 查询目录，默认查目录的字内容的详细信息。</li>
+</ul>
+</li>
+<li>-F：查询文件信息，带有类型提示符。</li>
+<li>-i：查询文件的 inode（i）</li>
+<li>-h：查询文件时，添加单位（M、k、G）</li>
+</ol>
+<h3 id="文件创建删除">文件创建、删除</h3>
+<ul>
+<li>创建空文件： touch 文件名</li>
+<li>创建空目录：mkdir 目录名
+<ul>
+<li>mkdir -p  a/b/c/d  一次性创建多级目录</li>
+</ul>
+</li>
+<li>删除空目录：rmdir 目录名。  如果目录非空，无法删除。</li>
+<li>rm命令：
+<ul>
+<li>-r：递归调用。</li>
+<li>-f：强制执行。如果命令出错，不会终止</li>
+<li>-i：以交互式方式，删除文件。</li>
+<li>删除文件： rm 文件名</li>
+<li>删除目录：rm -r 目录名</li>
+<li>==<strong>rm删除的文件，不能恢复，慎重使用</strong>==</li>
+</ul>
+</li>
+</ul>
+<h3 id="链接文件">链接文件</h3>
+<ul>
+<li>
+<p>硬链接：</p>
+<ul>
+<li><strong>创建语法</strong>： ln 文件名 硬链接文件名</li>
+<li>特性：源文件和硬链接文件具备相同数据信息，同步更新。</li>
+<li>原理：每新增一个硬链接，增加一个“目录项”（增加一个访问扇区途径）。硬链接计数+1</li>
+<li>删除硬链接：每删除一个硬链接，目录项-1.当减为0时，操作系统可以重写分配。</li>
+<li>目录文件，不能创建硬链接。</li>
+</ul>
+</li>
+<li>
+<p>软连接：</p>
+<ul>
+<li>相当于 win 快捷方式。</li>
+<li>**语法：**ln -s 源文件/目录名   软连接文件名</li>
+<li>强调：建议使用 “绝对路径法” 创建软连接。可以随意移动。</li>
+<li>软连接文件名：是它所指向的文件的访问路径。</li>
+<li>可以给目录创建软连接。</li>
+</ul>
+</li>
+</ul>
+<h3 id="文件的复制和移动">文件的复制和移动</h3>
+<ul>
+<li><strong>cp 复制文件</strong>
+<ul>
+<li>语法： cp 源文件/目录名  目标位置[/新文件或目录名]</li>
+<li>-r ：拷贝目录时指定。</li>
+<li>-a：拷贝目录时指定。保留文件原有属性</li>
+<li>-i：交互式拷贝。</li>
+</ul>
+</li>
+<li><strong>mv 移动、改名</strong>：
+<ul>
+<li>移动：mv 文件、目录名 	已经存在的目录名</li>
+<li>改名：mv 文件、目录名  不存在的 目录名</li>
+</ul>
+</li>
+</ul>
+<h3 id="压缩解压">压缩解压</h3>
+<ul>
+<li>压缩：
+<ul>
+<li>语法： tar -zcvf 压缩包名.tar.gz  压缩原材料。</li>
+<li>语法： tar -jcvf 压缩包名.tar.bz2  压缩原材料。
+<ul>
+<li>z：gzip压缩格式</li>
+<li>j： bzip2 压缩给</li>
+<li>c：创建压缩包</li>
+<li>v：显示压缩过程</li>
+<li>f：指定压缩文件名（最后一个参数）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>解压：
+<ul>
+<li>语法： tar -zxvf 压缩包名.tar.gz</li>
+<li>语法： tar -jxvf 压缩包名.tar.bz2
+<ul>
+<li>x：解压缩</li>
+<li>-C：指定解压缩位置。如： tar -zxvf 压缩包名 -C 待解压缩目录位置。</li>
+</ul>
+</li>
+<li>file 命令可以查看文件类型。当没有指定.tar.gz 或 .tar.bz2 时，可以使用file查看。</li>
+</ul>
+</li>
+</ul>
+<h3 id="其他命令">其他命令</h3>
+<ul>
+<li>&gt; :  输出重定向。
+<ul>
+<li>语法：命令  &gt; 文件名。 文件不存在创建。存在覆盖。</li>
+<li>&gt;&gt; : 追加。</li>
+</ul>
+</li>
+<li>cat：读取文件内容，显示到屏幕。</li>
+<li>tac ： 倒序显示文件内容。</li>
+<li>more、less：查看大文件
+<ul>
+<li>Enter键，显示一行</li>
+<li>空格键，显示一屏</li>
+<li>less 使用 ↑↓  more不能使用</li>
+<li>q、Ctrl-c 终止查看。</li>
+</ul>
+</li>
+<li>head、tail：查看文件头部、尾部
+<ul>
+<li>head -N 文件名 		查看文件前 n 行</li>
+<li>tail -N 文件名 		查看文件后 n 行</li>
+</ul>
+</li>
+<li>“|” 管道命令：
+<ul>
+<li>将前一个命令的输出，作为后一个命令输入。</li>
+<li>ls -l | more</li>
+<li>ps aux | grep</li>
+</ul>
+</li>
+<li>pwd：打印当前shell进程的工作目录位置</li>
+<li>which：查询命令的可执行文件所在目录。</li>
+</ul>
+<h2 id="用户管理">用户管理</h2>
+<h3 id="切换用户">切换用户</h3>
+<ul>
+<li>su 用户名： 切换登录用户，不改变工作路径。</li>
+<li>su - 用户名：切换登录用户，改变工作路径为 用户的 家目录</li>
+<li>sudo ： 临时获得管理员权限。sudo 对应的命令执行结束，权限消失。</li>
+</ul>
+<h3 id="添加删除用户">添加删除用户</h3>
+<ul>
+<li>添加用户：sudo  addruser 用户名。</li>
+<li>验证：查看 /etc/passwd 多出新用户信息。</li>
+<li>删除用户：sudo deluser 用户名。</li>
+</ul>
+<h3 id="添加删除用户组">添加删除用户组：</h3>
+<ul>
+<li>
+<p>添加用户组：sudo addgroup 组名</p>
+</li>
+<li>
+<p>验证：查看 /etc/group 多出新组信息。</p>
+</li>
+<li>
+<p>删除用户组：sudo delgroup 组名。</p>
+</li>
+<li>
+<p>修改文件所有者：chown 新用户名 文件名。</p>
+<blockquote>
+<p>chown  -R  gongqi:gongqi   xxx</p>
+</blockquote>
+</li>
+<li>
+<p>修改文件所属组：chgrp 新组名 文件名。</p>
+</li>
+</ul>
+<h3 id="修改用户密码">修改用户密码</h3>
+<ul>
+<li>passwd命令：修改当前登录用户密码。</li>
+<li>新增用户默认，不能使用 “sudo” , 修改 配置文件 /etc/sudoers , 添加 与 root 用户格式完全一致的配置项。</li>
+</ul>
+<h3 id="chmod修改文件权限">chmod修改文件权限</h3>
+<ul>
+<li>文字设定法：
+<ul>
+<li>u：所有者</li>
+<li>g：所属组</li>
+<li>o：其他人</li>
+<li>a：所有</li>
+<li>+：添加权限</li>
+<li>-：删除权限</li>
+<li>=：赋值权限</li>
+<li>rwx：读、写、执行</li>
+</ul>
+</li>
+<li>==<strong>数字设定法</strong>==
+<ul>
+<li>4	2	1</li>
+<li>r    w    x</li>
+<li>chmod 777 文件名。</li>
+</ul>
+</li>
+<li>vim简单使用
+<ol>
+<li>vim  文件名。 不存在创建，存在打开</li>
+<li>按 i 。 左下角 &ndash; 插入 &ndash; 提示</li>
+<li>编辑文本。（误按了 Ctrl-s 使用 Ctrl-q 解除）</li>
+<li>按 esc</li>
+<li>按 冒号。</li>
+<li>wq —— 保存退出。</li>
+<li>q! —— 强制退出。</li>
+</ol>
+</li>
+</ul>
+<h3 id="软件版本降级">软件版本降级</h3>
+<ul>
+<li>
+<p>sudo apt-get install aptitude</p>
+<blockquote>
+<p>安装降级工具</p>
+</blockquote>
+</li>
+<li>
+<p>sudo apt-cache madison  xxx</p>
+</li>
+</ul>
+<blockquote>
+<p>查看软件源中openssh-client的所有版本</p>
+</blockquote>
+<ul>
+<li>sudo aptitude install 包名=包的版本号</li>
+</ul>
+<blockquote>
+<p>降级</p>
+</blockquote>
+<h3 id="python共享文件">Python共享文件</h3>
+<blockquote>
+<p>python3  -m http.server</p>
+</blockquote>
+<h3 id="ssh">ssh</h3>
+<blockquote>
+<p>sudo apt-get install openssh-server</p>
+<p>由于xshell远程连接ubuntu是通过ssh协议的，所以，需要给ubuntu安装ssh服务器。</p>
+</blockquote>
+<h3 id="查看硬件">查看硬件</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a6e22e">free</span> <span style="color:#f92672">-</span><span style="color:#a6e22e">h</span>    <span style="color:#75715e">//查看内存
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">df</span> <span style="color:#f92672">-</span><span style="color:#a6e22e">h</span>       <span style="color:#75715e">//查看磁盘的使用情况
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">sudo</span> <span style="color:#a6e22e">swapon</span> <span style="color:#f92672">--</span><span style="color:#a6e22e">show</span>  <span style="color:#75715e">//查看是否有交换分区
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">lsblk</span>
+</code></pre></div><h3 id="scp">scp</h3>
+<blockquote>
+<p>scp  要传的文件  root@目标ip:路径    //上传到远程服务器</p>
+<p>scp root@目标ip:文件路径  本地位置  //下载到本地服务器</p>
+</blockquote>
+<h3 id="telnet">telnet</h3>
+<blockquote>
+<p>telnet  ip  port     //空格隔分</p>
+</blockquote>
+<h3 id="locate">locate</h3>
+<p>Locate  [选项] [参数]</p>
+<p>功能:在mlocate数据库中搜索条目,用来快速查找文件或目录</p>
+<p>示例:</p>
+<blockquote>
+<p>loacte less1    在各个目录下查找名为less1的这个文件或者文件夹</p>
+<p>locate newlocate  为了避免新建的文件夹找不到，可以立即更新数据库(updatedb命令)</p>
+<p>locate -i /home/sunjimeng/Documents/*Cate        在使用通配符时忽略大小写</p>
+<p>locate /home/sunjimeng/Documents/le    寻找以特定字符串开头的文件或文件夹</p>
+</blockquote>
+<h3 id="netstat">netstat</h3>
+<p>sudo netstat -ap|grep 9108   //查看9108端口的进程</p>
+<h3 id="du-查看文件大小">du-查看文件大小</h3>
+<blockquote>
+<p>du -h  -s xxx     //查看xxx文件夹的大小</p>
+<p>-h 以K，M，G为单位，提高信息的可读性</p>
+<p>-s 仅显示总计</p>
+</blockquote>
+<h3 id="ls-查看当前目录下的文件个数">ls 查看当前目录下的文件个数</h3>
+<blockquote>
+<p>ls -l | grep &ldquo;^-&rdquo; | wc -l    //普通文件的个数  （不包含文件夹）</p>
+<p>ls -l | grep &ldquo;^d&rdquo; | wc -l  //文件夹的个数</p>
+</blockquote>
+<h3 id="dns">DNS</h3>
+<blockquote>
+<p>sudo chattr +i /etc/resolv.conf   //永久修改DNS</p>
+</blockquote>
+<h3 id="分区">分区</h3>
+<blockquote>
+<p>fdisk  -l   // 查看硬盘信息</p>
+<p>fdisk  [磁盘路径]  //打开<code>fdisk</code>系统</p>
+<p>df  -h  //查看硬盘和挂载分区等信息</p>
+</blockquote>
+<h3 id="格式化挂载">格式化&amp;挂载</h3>
+<blockquote>
+<p>sudo umount  [磁盘路径]      //格式化前必须umount</p>
+<p>mkfs.ext4  /dev/sdb1              //将<code>/dev/sdb1</code>格式化为<code>ext4</code>类型</p>
+<p>mount  /dev/sdb1  /[目录名]  //挂载</p>
+<p><strong>设置开机自动挂载</strong>：</p>
+<p>1、ls  -al  /dev/disk/by-uuid  //查询磁盘UUID</p>
+<p>2、vim  /etc/fstab //编辑<code>/etc/fstab</code>(用来存放文件系统的静态信息的文件)</p>
+<p>例：UID=e2c11cf7-e0ca-45f7-90e8-5e05b48f8917 /home/gongqi/MountFiles ext4 defaults,noatime 0 0</p>
+<p>3、重启</p>
+</blockquote>
+<h3 id="uname">uname</h3>
+<blockquote>
+<p>uname -a  或  cat /proc/version   //查看内核版本</p>
+</blockquote>
+<h3 id="sed">sed</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">sed -i <span style="color:#e6db74">&#39;s/v3.0.0-8a16951-nolic/v3.0.0-44cba50/g&#39;</span>  *.yml
+//替换制定字符串
+sed -e <span style="color:#e6db74">&#34;s/startStr//&#34;</span> //删除每行开头的字符串startStr
+</code></pre></div><h3 id="awk">awk</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">awk -F <span style="color:#e6db74">&#39;track_id&#34;:&#34;&#39;</span> <span style="color:#e6db74">&#39;{print $2}&#39;</span> output.json | awk -F <span style="color:#e6db74">&#39;&#34;&#39;</span> <span style="color:#e6db74">&#39;{print &#34;track_id:&#34;$1}&#39;</span> &gt; track_id.txt
+//获得output.json中的字段track_id，保存至result.txt
+</code></pre></div><h3 id="argument-list-too-long">Argument list too long</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">find ./ -name <span style="color:#e6db74">&#34;*&#34;</span> | xargs -i rm <span style="color:#f92672">{}</span>
+或
+find test/ -name <span style="color:#e6db74">&#34;*.jpg&#34;</span> -exec rm <span style="color:#f92672">{}</span> <span style="color:#ae81ff">\;</span>
+</code></pre></div><h3 id="setenvexport">set、env、export</h3>
+<p>set命令显示当前shell的变量（包括的私有变量以及用户变量，不同类的shell有不同的私有变量），包括当前用户的变量;</p>
+<p>env命令显示当前用户的变量;</p>
+<p>export命令显示当前导出成用户变量的shell变量。</p>
+<p>每个shell有自己特有的变量（set）显示的变量，这个和用户变量是不同的，当前用户变量和你用什么shell无关，不管你用什么shell都在，比如HOME,SHELL等这些变量，但shell自己的变量不同shell是不同的，比如BASH_ARGC， BASH等，这些变量只有set才会显示，是bash特有的，export不加参数的时候，显示哪些变量被导出成了用户变量，因为一个shell自己的变量可以通过export “导出”变成一个用户变量。</p>
+<h3 id="挂载img文件">挂载.img文件</h3>
+<blockquote>
+<p>losetup -f     //查找第一个可用的loop设备</p>
+<p>sudo losetup /dev/loop6 uefi-ntfs.img    //关联loop设备与img文件</p>
+<p>sudo mount /dev/loop6 xxx     //挂载loop设备</p>
+</blockquote>
+<h3 id="tail">Tail</h3>
+<p>tail -f test.log</p>
+<blockquote>
+<p>持续输出日志</p>
+</blockquote>
+<p>tail -n +5 log2014.log</p>
+<blockquote>
+<p>从第五行开始显示文件</p>
+</blockquote>
+<p>tail -n 5 log2014.log</p>
+<blockquote>
+<p>显示最后5行日志</p>
+</blockquote>
+<h3 id="which">which</h3>
+<p>which命令的作用是，在PATH变量指定的路径中，搜索某个系统命令的位置，并且返回第一个搜索结果。 也就是说，使用which命令，就可以看到某个系统命令是否存在，以及执行的到底是哪一个位置的命令。</p>
+<h3 id="cat-eof追加文字">CAT EOF追加文字</h3>
+<p>cat &raquo; /etc/hosts &laquo;EOF</p>
+<p>192.168.8.10 k8s-master-01</p>
+<p>192.168.8.21 k8s-node-01</p>
+<p>192.168.8.22 k8s-node-02</p>
+<p>EOF</p>
+<h3 id="file">file</h3>
+<p>file 命令可以查看文件类型</p>
+<h3 id="curl-cipcc">curl cip.cc</h3>
+<p>查看电脑的公网Ip</p>
+<h3 id="dig-域名信息搜索">dig-域名信息搜索</h3>
+<p>dig gqfun.top +nostats +nocomments +nocmd</p>
+
+    </div>
+    
+      
+        <div class="pagination">
+          <div class="pagination__title">
+            <span class="pagination__title-h"
+              >Read other posts</span
+            >
+            <hr />
+          </div>
+          <div class="pagination__buttons">
+            
+              <span class="button previous">
+                <a href="/posts/go%E4%B9%8B%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%AD%E4%B8%8E%E9%94%81/">
+                  <span class="button__icon">←</span>
+                  <span class="button__text">go之同步原语</span>
+                </a>
+              </span>
+            
+            
+              <span class="button next">
+                <a href="/posts/my-first-post/">
+                  <span class="button__text">My First Post</span>
+                  <span class="button__icon">→</span>
+                </a>
+              </span>
+            
+          </div>
+        </div>
+      
+    
+
+    
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "gq" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+      
+    
+  </div>
+
+      </div>
+
+      
+        <footer class="footer">
+  <div class="footer__inner">
+    
+      <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >K:)eep</span
+    >
+    <span class="logo__cursor"></span>
+  
+</a>
+
+      <div class="copyright">
+        <span
+          >© 2021 Powered by
+          <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a></span
+        >
+        <span
+          >Theme created by
+          <a href="https://twitter.com/panr" target="_blank" rel="noopener">panr</a></span
+        >
+      </div>
+    
+  </div>
+</footer>
+
+<script src="/assets/main.js"></script>
+<script src="/assets/prism.js"></script>
+
+
+      
+    </div>
+
+    
+  </body>
+</html>
