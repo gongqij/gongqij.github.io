@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>K:)eep</title>
+    
+    
+    
+    <link>/</link>
+    <description>Recent content on K:)eep</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 29 Nov 2021 11:14:03 +0800</lastBuildDate>
+    
+	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>go之同步原语</title>
+      <link>/posts/go%E4%B9%8B%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%AD%E4%B8%8E%E9%94%81/</link>
+      <pubDate>Mon, 29 Nov 2021 11:14:03 +0800</pubDate>
+      
+      <guid>/posts/go%E4%B9%8B%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%AD%E4%B8%8E%E9%94%81/</guid>
+      <description>
+        
+          
+          
+          
+        
+        
+        
+          同步原语与锁 Mutex 数据结构 type Mutex struct { state int32 //表示当前互斥锁的状态 	sema uint32 //用于控制锁状态的信号量 } 互斥锁的状态 互斥锁的状态比较复杂，如下图所示，最低三位分别表示 mutexLocked、mutexWoken 和 mutexStarving，剩下的位置用来表示当前有多少个 Goroutine 等待互斥锁的释放：
+图 6-6 互斥锁的状态
+在默认情况下，互斥锁的所有状态位都是 0，int32 中的不同位分别表示了不同的状态：
+ mutexLocked — 表示互斥锁的锁定状态； mutexWoken — 表示从正常模式被从唤醒； mutexStarving — 当前的互斥锁进入饥饿状态；  互斥锁的正常模式和饥饿模式 sync.Mutex 有两种模式 — 正常模式和饥饿模式。我们需要在这里先了解正常模式和饥饿模式都是什么，它们有什么样的关系。
+在正常模式下，锁的等待者会按照先进先出的顺序获取锁。但是刚被唤起的 Goroutine 与新创建的 Goroutine 竞争时，大概率会获取不到锁，为了减少这种情况的出现，一旦 Goroutine 超过 1ms 没有获取到锁，它就会将当前互斥锁切换饥饿模式，防止部分 Goroutine 被『饿死』。
+图 6-7 互斥锁的正常模式与饥饿模式
+饥饿模式是在 Go 语言 1.9 版本引入的优化1，引入的目的是保证互斥锁的公平性（Fairness）。
+在饥饿模式中，互斥锁会直接交给等待队列最前面的 Goroutine。新的 Goroutine 在该状态下不能获取锁、也不会进入自旋状态，它们只会在队列的末尾等待。如果一个 Goroutine 获得了互斥锁并且它在队列的末尾或者它等待的时间少于 1ms，那么当前的互斥锁就会被切换回正常模式。
+          
+        
+        </description>
+    </item>
+    
+    <item>
+      <title>My First Post</title>
+      <link>/posts/my-first-post/</link>
+      <pubDate>Mon, 29 Nov 2021 11:14:03 +0800</pubDate>
+      
+      <guid>/posts/my-first-post/</guid>
+      <description>
+        
+          
+          
+          
+        
+        
+        
+          hello hugo!!!
+          
+        
+        </description>
+    </item>
+    
+    <item>
+      <title>哈哈哈哈</title>
+      <link>/posts/my/</link>
+      <pubDate>Mon, 29 Nov 2021 11:14:03 +0800</pubDate>
+      
+      <guid>/posts/my/</guid>
+      <description>
+        
+          
+          
+          
+        
+        
+        
+          hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!! hello hugo!!!
+          
+        
+        </description>
+    </item>
+    
+  </channel>
+</rss>
