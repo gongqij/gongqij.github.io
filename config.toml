@@ -68,5 +68,5 @@ disqusShortname = 'gq'
       [[languages.en.menu.main]]
         identifier = "ReadList"
         name = "ReadList"
-        url = "/"
+        url = "/posts/Readlist"
       
