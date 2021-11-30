@@ -30,7 +30,7 @@ author: "gq"
 
 ## 设计原理
 
-![shared-memory](https://img.draveness.me/2020-01-28-15802171487042-shared-memory.png)
+![shared-memory](/static/head.png)
 
 ​                                               **多线程使用共享内存传递数据**
 
