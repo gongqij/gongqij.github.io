@@ -64,7 +64,7 @@ disqusShortname = 'gqfun'
       [[languages.en.menu.main]]
         identifier = "WeChat"
         name = "WeChat"
-        url = "/"
+        url = "/posts/WeChat"
       [[languages.en.menu.main]]
         identifier = "ReadList"
         name = "ReadList"
