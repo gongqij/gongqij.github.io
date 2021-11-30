@@ -29,7 +29,7 @@ disqusShortname = 'gqfun'
 [languages]
   [languages.en]
     title = "K:)eep"
-    subtitle = "A simple theme for Hugo"
+    subtitle = ""
     keywords = ""
     copyright = ""
     menuMore = "Show more"
