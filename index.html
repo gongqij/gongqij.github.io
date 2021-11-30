@@ -30,25 +30,26 @@ A simple theme for Hugo
 <meta property="og:url" content="/"><meta property="og:site_name" content="K:)eep">
 <link rel=alternate type=application/rss+xml href=/index.xml title=K:)eep>
 </head>
-<body class=dark-theme>
+<body>
 <div class=container>
 <header class=header>
 <span class=header__inner>
 <a href=/ class=logo style=text-decoration:none>
-<span class=logo__mark><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44"><path fill="none" d="M15 8l14.729 14.382L15 35.367"/></svg>
-</span>
 <span class=logo__text>K:)eep</span>
-<span class=logo__cursor></span>
 </a>
 <span class=header__right>
 <nav class=menu>
 <ul class="menu__inner menu__inner--desktop">
 <li><a href=https://github.com/gongqij>Github</a></li>
-<li><a href=http://localhost:1313/>Home</a></li>
+<li><a href=/>Home</a></li>
+<li><a href=/>ReadList</a></li>
+<li><a href=/>WeChat</a></li>
 </ul>
 <ul class="menu__inner menu__inner--mobile">
 <li><a href=https://github.com/gongqij>Github</a></li>
-<li><a href=http://localhost:1313/>Home</a></li>
+<li><a href=/>Home</a></li>
+<li><a href=/>ReadList</a></li>
+<li><a href=/>WeChat</a></li>
 </ul>
 </nav>
 <span class=menu-trigger><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
@@ -66,6 +67,7 @@ A simple theme for Hugo
 <span class=post-date>
 2021-11-30
 </span>
+<span class=post-read-time>· 17 min read</span>
 </div>
 <div class=post-content>
 channel channel的作用 goroutine之间安全通信
@@ -81,7 +83,11 @@ calls into the runtime scheduler(gopark, goready)
 先入先出 目前的 Channel 收发操作均遵循了先入先出（FIFO）的设计，具体规则如下：
 先从 Channel 读取数据的 Goroutine 会先接收到数据； 先向 Channel 发送数据的 Goroutine 会得到先发送数据的权利； 数据结构 Channel 在运行时的内部表示是 runtime.
 </div>
-<div><a class="read-more button" href=/posts/channel/>Read more →</a></div>
+<div>
+<a class="read-more button" style=color:#1e90ff href=/posts/channel/>▶️ Read more</a>
+<span class=post-author style=text-align:right;color:#999;display:inline-block;width:80%> By :</span>
+<a style=font-weight:700> gq </a>
+</div>
 </div>
 <div class="post on-list">
 <h1 class=post-title><a href=/posts/go%E4%B9%8B%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%AD%E4%B8%8E%E9%94%81/>go之同步原语</a></h1>
@@ -89,6 +95,7 @@ calls into the runtime scheduler(gopark, goready)
 <span class=post-date>
 2021-11-29
 </span>
+<span class=post-read-time>· 6 min read</span>
 </div>
 <div class=post-content>
 同步原语与锁 Mutex 数据结构 type Mutex struct { state int32 //表示当前互斥锁的状态 sema uint32 //用于控制锁状态的信号量 } 互斥锁的状态 互斥锁的状态比较复杂，如下图所示，最低三位分别表示 mutexLocked、mutexWoken 和 mutexStarving，剩下的位置用来表示当前有多少个 Goroutine 等待互斥锁的释放：
@@ -100,7 +107,11 @@ mutexLocked — 表示互斥锁的锁定状态； mutexWoken — 表示从正常
 饥饿模式是在 Go 语言 1.9 版本引入的优化1，引入的目的是保证互斥锁的公平性（Fairness）。
 在饥饿模式中，互斥锁会直接交给等待队列最前面的 Goroutine。新的 Goroutine 在该状态下不能获取锁、也不会进入自旋状态，它们只会在队列的末尾等待。如果一个 Goroutine 获得了互斥锁并且它在队列的末尾或者它等待的时间少于 1ms，那么当前的互斥锁就会被切换回正常模式。
 </div>
-<div><a class="read-more button" href=/posts/go%E4%B9%8B%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%AD%E4%B8%8E%E9%94%81/>Read more →</a></div>
+<div>
+<a class="read-more button" style=color:#1e90ff href=/posts/go%E4%B9%8B%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%AD%E4%B8%8E%E9%94%81/>▶️ Read more</a>
+<span class=post-author style=text-align:right;color:#999;display:inline-block;width:80%> By :</span>
+<a style=font-weight:700> gq </a>
+</div>
 </div>
 <div class="post on-list">
 <h1 class=post-title><a href=/posts/linux%E7%9B%B8%E5%85%B3%E6%8C%87%E4%BB%A4/>linux相关指令</a></h1>
@@ -108,6 +119,7 @@ mutexLocked — 表示互斥锁的锁定状态； mutexWoken — 表示从正常
 <span class=post-date>
 2021-11-29
 </span>
+<span class=post-read-time>· 4 min read</span>
 </div>
 <div class=post-content>
 Ubuntu命令大全 apt-get apt-get update:更新安装列表 apt-get upgrade:升级软件 apt-get install software_name :安装软件 apt-get &ndash;purge remove software_name :卸载软件及其配置 apt-get autoremove software_name:卸载软件及其依赖的安装包
@@ -120,7 +132,11 @@ sudo uname -m
 ctrl+alt+f7 // 图形界面
 查看帮助 &ndash;help
 </div>
-<div><a class="read-more button" href=/posts/linux%E7%9B%B8%E5%85%B3%E6%8C%87%E4%BB%A4/>Read more →</a></div>
+<div>
+<a class="read-more button" style=color:#1e90ff href=/posts/linux%E7%9B%B8%E5%85%B3%E6%8C%87%E4%BB%A4/>▶️ Read more</a>
+<span class=post-author style=text-align:right;color:#999;display:inline-block;width:80%> By :</span>
+<a style=font-weight:700> gq </a>
+</div>
 </div>
 <div class="post on-list">
 <h1 class=post-title><a href=/posts/my-first-post/>My First Post</a></h1>
@@ -128,10 +144,15 @@ ctrl+alt+f7 // 图形界面
 <span class=post-date>
 2021-11-29
 </span>
+<span class=post-read-time>· 1 min read</span>
 </div>
 <div class=post-content>
 </div>
-<div><a class="read-more button" href=/posts/my-first-post/>Read more →</a></div>
+<div>
+<a class="read-more button" style=color:#1e90ff href=/posts/my-first-post/>▶️ Read more</a>
+<span class=post-author style=text-align:right;color:#999;display:inline-block;width:80%> By :</span>
+<a style=font-weight:700> gq </a>
+</div>
 </div>
 <div class=pagination>
 <div class=pagination__buttons>
@@ -142,16 +163,11 @@ ctrl+alt+f7 // 图形界面
 <footer class=footer>
 <div class=footer__inner>
 <a href=/ class=logo style=text-decoration:none>
-<span class=logo__mark><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44"><path fill="none" d="M15 8l14.729 14.382L15 35.367"/></svg>
-</span>
 <span class=logo__text>K:)eep</span>
-<span class=logo__cursor></span>
 </a>
 <div class=copyright>
 <span>© 2021 Powered by
 <a href=https://gohugo.io target=_blank rel=noopener>Hugo</a></span>
-<span>Theme created by
-<a href=https://twitter.com/panr target=_blank rel=noopener>panr</a></span>
 </div>
 </div>
 </footer>
