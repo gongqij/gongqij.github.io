@@ -30,7 +30,7 @@ author: "gq"
 
 ## 设计原理
 
-![shared-memory](/static/head.png)
+![shared-memory](/head.png)
 
 ​                                               **多线程使用共享内存传递数据**
 
