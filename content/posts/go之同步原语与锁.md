@@ -2,6 +2,7 @@
 title: "go之同步原语"
 date: 2021-11-29T11:14:03+08:00
 draft: false
+author: "gq"
 ---
 
 # 同步原语与锁

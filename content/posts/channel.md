@@ -2,6 +2,7 @@
 title: "go之channel"
 date: 2021-11-30T9:38:03+08:00
 draft: false
+author: "gq"
 ---
 
 # channel

@@ -10,15 +10,15 @@ disqusShortname = 'gq'
   contentTypeName = "posts"
 
   # "light" or "dark"
-  defaultTheme = "dark"
+  defaultTheme = "light"
 
   # if you set this to 0, only submenu trigger will be visible
-  showMenuItems = 2
+  showMenuItems = 4
 
   # Show reading time in minutes for posts
-  showReadingTime = false
+  showReadingTime = true
 
-  # Show table of contents at the top of your posts (defaults to false)
+# Show table of contents at the top of your posts (defaults to false)
   # Alternatively, add this param to post front matter for specific posts
   # toc = true
 
@@ -33,7 +33,7 @@ disqusShortname = 'gq'
     keywords = ""
     copyright = ""
     menuMore = "Show more"
-    writtenBy = "Written by"
+    writtenBy = "By :"
     readMore = "Read more"
     readOtherPosts = "Read other posts"
     newerPosts = "Newer posts"
@@ -42,7 +42,7 @@ disqusShortname = 'gq'
     dateFormatSingle = "2006-01-02"
     dateFormatList = "2006-01-02"
     # leave empty to disable, enter display text to enable
-    # lastModDisplay = ""
+    lastModDisplay = "Modified:"
 
     [languages.en.params.logo]
       logoText = "K:)eep"
@@ -54,10 +54,19 @@ disqusShortname = 'gq'
 
     [languages.en.menu]
       [[languages.en.menu.main]]
-        identifier = "about"
+        identifier = "Home"
         name = "Home"
-        url = "http://localhost:1313/"
+        url = "/"
       [[languages.en.menu.main]]
-        identifier = "showcase"
+        identifier = "Github"
         name = "Github"
         url = "https://github.com/gongqij"
+      [[languages.en.menu.main]]
+        identifier = "WeChat"
+        name = "WeChat"
+        url = "/"
+      [[languages.en.menu.main]]
+        identifier = "ReadList"
+        name = "ReadList"
+        url = "/"
+      
