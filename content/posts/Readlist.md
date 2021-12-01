@@ -17,6 +17,7 @@ type: "inline"
 8. 设计模式
 9. 重构
 10. systems performance
+10. 人月神话
 
 ## 文学类
 0. 如何阅读一本书
