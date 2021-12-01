@@ -1,3 +1,9 @@
+<script>
+    if (localStorage.getItem('theme') == 'dark') {
+        document.documentElement.classList.add('dark-mode');
+    }
+</script>
+
 <div id="light-mode">
     <script src="https://utteranc.es/client.js"
             repo="gongqij/blog_comment"
@@ -7,3 +13,24 @@
             async>
     </script>
 </div>
+
+<div id="dark-mode">
+    <script src="https://utteranc.es/client.js"
+            repo="gongqij/blog_comment"
+            issue-term="title"
+            theme="github-dark"
+            crossorigin="anonymous"
+            async>
+    </script>
+</div>
+
+<script>
+    var root = document.getElementsByClassName("dark-mode");
+    if (root.length > 0) {
+        document.getElementById("light-mode").style.display = "none";
+        document.getElementById("dark-mode").style.display = "block";
+    } else {
+        document.getElementById("light-mode").style.display = "block";
+        document.getElementById("dark-mode").style.display = "none";
+    }
+</script>
