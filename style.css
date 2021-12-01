@@ -6,3 +6,8 @@ body {
 img {
     border-radius: 10px;
 }
+
+.post{
+    max-width: 900px;
+    margin: auto;
+}
