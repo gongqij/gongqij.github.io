@@ -60,6 +60,34 @@ Posts
 <div class=content>
 <div class=posts>
 <div class="post on-list">
+<h1 class=post-title><a href=/posts/rust%E5%AD%A6%E4%B9%A0/>Rust学习</a></h1>
+<div class=post-meta>
+<span class=post-date>
+2021-12-01
+</span>
+<span class=post-author>— By : gq</span>
+<span class=post-read-time>— 7 min read</span>
+</div>
+<div class=post-content>
+Rust 静态类型语言 Rust是静态类型语言，在编译时就必须知道所有变量的类型。
+动态语言是指运行期间可以改变其结构的语言：例如增加或者删除函数、对象、甚至代码。比如JavaScript、Objective-C、Ruby、Python等，而C、C++等语言则不属于动态语言。静态语言与动态语言相反，在运行时不能改变其结构。尽管静态语言可以通过复杂的手段实现动态语言的特性，但是动态语言提供了直接的方法实现语言的动态性。
+动态类型语言是指在运行期间才去做数据类型检查的语言。在用动态语言编程时，不用给变量指定数据类型，第一次赋值给变量时，在内部将数据类型记录下来。JavaScript、Ruby、Python是典型的动态类型语言。静态类型语言与动态类型语言刚好相反，它的数据类型检查发生在在编译阶段，也就是说在写程序时要声明变量的数据类型。C/C++、C#、Java都是静态类型语言的典型代表。
+大部分动态语言是动态类型的，但是不是所有都是。
+一、依赖管理&ndash;cargo source 默认路径 ～/.cargo/config
+[source.crates-io] registry = &ldquo;https://github.com/rust-lang/crates.io-index" replace-with = &lsquo;ustc&rsquo; [source.ustc] registry = &ldquo;git://mirrors.ustc.edu.cn/crates.io-index&rdquo;
+cargo.lock cargo.lock相当于依赖锁，除非在cargo.toml中手动指定了其他依赖版本，否则编译时依赖版本始终保持不变，即项目构建可重现
+cargo update cargo update会忽略cargo.lock，并计算出所有符合 Cargo.toml 声明的最新版本。如果成功了，Cargo 会把这些版本写入 Cargo.lock 文件。
+注意：（当前版本0.5.5）
+Cargo 默认只会寻找大于 0.5.5 而小于 0.6.0 的版本。如果 rand crate 发布了两个新版本，0.5.6 和 0.6.0，会更新到0.5.6，如果想要使用 0.6.0 版本的 rand 或是任何 0.6.x 系列的版本，需要修改cargo.toml
+cargo doc &ndash;open 以文档形式查看本地项目的所有依赖
+Rust 有一个静态强类型系统，同时也有类型推断 整数类型的变量默认为i32，不能和string类型进行比较，但是可以和u32类型作比较（rust的类型推断）
+二、数据类型 常量 例如：const MAX_POINTS: u32 = 100_000;
+</div>
+<div>
+<a class="read-more button" href=/posts/rust%E5%AD%A6%E4%B9%A0/>Read more →</a>
+</div>
+</div>
+<div class="post on-list">
 <h1 class=post-title><a href=/posts/channel/>go之channel</a></h1>
 <div class=post-meta>
 <span class=post-date>
@@ -100,34 +128,6 @@ calls into the runtime scheduler(gopark, goready)
 </div>
 <div>
 <a class="read-more button" href=/posts/readlist/>Read more →</a>
-</div>
-</div>
-<div class="post on-list">
-<h1 class=post-title><a href=/posts/rust%E5%AD%A6%E4%B9%A0/>Rust学习</a></h1>
-<div class=post-meta>
-<span class=post-date>
-2021-11-30
-</span>
-<span class=post-author>— By : gq</span>
-<span class=post-read-time>— 7 min read</span>
-</div>
-<div class=post-content>
-Rust 静态类型语言 Rust是静态类型语言，在编译时就必须知道所有变量的类型。
-动态语言是指运行期间可以改变其结构的语言：例如增加或者删除函数、对象、甚至代码。比如JavaScript、Objective-C、Ruby、Python等，而C、C++等语言则不属于动态语言。静态语言与动态语言相反，在运行时不能改变其结构。尽管静态语言可以通过复杂的手段实现动态语言的特性，但是动态语言提供了直接的方法实现语言的动态性。
-动态类型语言是指在运行期间才去做数据类型检查的语言。在用动态语言编程时，不用给变量指定数据类型，第一次赋值给变量时，在内部将数据类型记录下来。JavaScript、Ruby、Python是典型的动态类型语言。静态类型语言与动态类型语言刚好相反，它的数据类型检查发生在在编译阶段，也就是说在写程序时要声明变量的数据类型。C/C++、C#、Java都是静态类型语言的典型代表。
-大部分动态语言是动态类型的，但是不是所有都是。
-一、依赖管理&ndash;cargo source 默认路径 ～/.cargo/config
-[source.crates-io] registry = &ldquo;https://github.com/rust-lang/crates.io-index" replace-with = &lsquo;ustc&rsquo; [source.ustc] registry = &ldquo;git://mirrors.ustc.edu.cn/crates.io-index&rdquo;
-cargo.lock cargo.lock相当于依赖锁，除非在cargo.toml中手动指定了其他依赖版本，否则编译时依赖版本始终保持不变，即项目构建可重现
-cargo update cargo update会忽略cargo.lock，并计算出所有符合 Cargo.toml 声明的最新版本。如果成功了，Cargo 会把这些版本写入 Cargo.lock 文件。
-注意：（当前版本0.5.5）
-Cargo 默认只会寻找大于 0.5.5 而小于 0.6.0 的版本。如果 rand crate 发布了两个新版本，0.5.6 和 0.6.0，会更新到0.5.6，如果想要使用 0.6.0 版本的 rand 或是任何 0.6.x 系列的版本，需要修改cargo.toml
-cargo doc &ndash;open 以文档形式查看本地项目的所有依赖
-Rust 有一个静态强类型系统，同时也有类型推断 整数类型的变量默认为i32，不能和string类型进行比较，但是可以和u32类型作比较（rust的类型推断）
-二、数据类型 常量 例如：const MAX_POINTS: u32 = 100_000;
-</div>
-<div>
-<a class="read-more button" href=/posts/rust%E5%AD%A6%E4%B9%A0/>Read more →</a>
 </div>
 </div>
 <div class="post on-list">
