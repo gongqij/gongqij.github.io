@@ -13,3 +13,7 @@ img {
     max-width: 900px;
     margin: auto;
 }
+
+a {
+    text-decoration: none;
+}

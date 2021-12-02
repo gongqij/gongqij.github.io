@@ -105,13 +105,13 @@ Cargo 默认只会寻找大于 0.5.5 而小于 0.6.0 的版本。如果 rand cra
 </div>
 <div class=post-content>
 <h1 id=rust>Rust</h1>
-<h3 id=静态类型语言><a href=#静态类型语言 class=h-anchor>#</a>静态类型语言</h3>
+<h3 id=静态类型语言><a href=#静态类型语言 class=h-anchor>></a>静态类型语言</h3>
 <p>Rust是静态类型语言，在编译时就必须知道所有变量的类型。</p>
 <p><strong>动态语言</strong>是指<strong>运行期间</strong>可以改变其结构的语言：例如增加或者删除函数、对象、甚至代码。比如JavaScript、Objective-C、Ruby、Python等，而C、C++等语言则不属于动态语言。<strong>静态语言</strong>与动态语言相反，在运行时不能改变其结构。尽管静态语言可以通过复杂的手段实现动态语言的特性，但是动态语言提供了直接的方法实现语言的动态性。</p>
 <p><strong>动态类型语言</strong>是指在运行期间才去做数据类型检查的语言。在用动态语言编程时，不用给变量指定数据类型，第一次赋值给变量时，在内部将数据类型记录下来。JavaScript、Ruby、Python是典型的动态类型语言。<strong>静态类型语言</strong>与动态类型语言刚好相反，它的数据类型检查发生在在编译阶段，也就是说在写程序时要声明变量的数据类型。C/C++、C#、Java都是静态类型语言的典型代表。</p>
 <p><strong>大部分动态语言是动态类型的，但是不是所有都是。</strong></p>
-<h2 id=一依赖管理--cargo><a href=#一依赖管理--cargo class=h-anchor>#</a>一、依赖管理&ndash;cargo</h2>
-<h3 id=source><a href=#source class=h-anchor>#</a>source</h3>
+<h2 id=一依赖管理--cargo><a href=#一依赖管理--cargo class=h-anchor>></a>一、依赖管理&ndash;cargo</h2>
+<h3 id=source><a href=#source class=h-anchor>></a>source</h3>
 <p>默认路径 ～/.cargo/config</p>
 <blockquote>
 <p>[source.crates-io]
@@ -120,45 +120,45 @@ replace-with = &lsquo;ustc&rsquo;
 [source.ustc]
 registry = &ldquo;git://mirrors.ustc.edu.cn/crates.io-index&rdquo;</p>
 </blockquote>
-<h3 id=cargolock><a href=#cargolock class=h-anchor>#</a>cargo.lock</h3>
+<h3 id=cargolock><a href=#cargolock class=h-anchor>></a>cargo.lock</h3>
 <blockquote>
 <p>cargo.lock相当于依赖锁，除非在cargo.toml中手动指定了其他依赖版本，否则编译时依赖版本始终保持不变，即项目构建可重现</p>
 </blockquote>
-<h3 id=cargo-update><a href=#cargo-update class=h-anchor>#</a>cargo update</h3>
+<h3 id=cargo-update><a href=#cargo-update class=h-anchor>></a>cargo update</h3>
 <blockquote>
 <p>cargo update会忽略cargo.lock，并计算出所有符合 <em>Cargo.toml</em> 声明的最新版本。如果成功了，Cargo 会把这些版本写入 <em>Cargo.lock</em> 文件。</p>
 <p><strong>注意：（当前版本0.5.5）</strong></p>
 <p>Cargo 默认只会寻找大于 <code>0.5.5</code> 而小于 <code>0.6.0</code> 的版本。如果 <code>rand</code> crate 发布了两个新版本，<code>0.5.6</code> 和 <code>0.6.0</code>，会更新到0.5.6，如果想要使用 <code>0.6.0</code> 版本的 <code>rand</code> 或是任何 <code>0.6.x</code> 系列的版本，需要修改cargo.toml</p>
 </blockquote>
-<h3 id=cargo-doc---open><a href=#cargo-doc---open class=h-anchor>#</a>cargo doc &ndash;open</h3>
+<h3 id=cargo-doc---open><a href=#cargo-doc---open class=h-anchor>></a>cargo doc &ndash;open</h3>
 <blockquote>
 <p>以文档形式查看本地项目的所有依赖</p>
 </blockquote>
-<h3 id=rust-有一个静态强类型系统同时也有类型推断><a href=#rust-有一个静态强类型系统同时也有类型推断 class=h-anchor>#</a>Rust 有一个静态强类型系统，同时也有类型推断</h3>
+<h3 id=rust-有一个静态强类型系统同时也有类型推断><a href=#rust-有一个静态强类型系统同时也有类型推断 class=h-anchor>></a>Rust 有一个静态强类型系统，同时也有类型推断</h3>
 <blockquote>
 <p>整数类型的变量默认为i32，不能和string类型进行比较，但是可以和u32类型作比较（rust的类型推断）</p>
 </blockquote>
-<h2 id=二数据类型><a href=#二数据类型 class=h-anchor>#</a>二、数据类型</h2>
-<h3 id=常量><a href=#常量 class=h-anchor>#</a>常量</h3>
+<h2 id=二数据类型><a href=#二数据类型 class=h-anchor>></a>二、数据类型</h2>
+<h3 id=常量><a href=#常量 class=h-anchor>></a>常量</h3>
 <blockquote>
 <p>例如：const MAX_POINTS: u32 = 100_000;</p>
 <p>在声明它的作用域之中，常量在整个程序生命周期中都有效，这使得常量可以作为多处代码使用的全局范围的值，例如一个游戏中所有玩家可以获取的最高分或者光速。</p>
 </blockquote>
-<h3 id=变量><a href=#变量 class=h-anchor>#</a>变量</h3>
+<h3 id=变量><a href=#变量 class=h-anchor>></a>变量</h3>
 <blockquote>
-<h3 id=mut与隐藏><a href=#mut与隐藏 class=h-anchor>#</a>mut与隐藏</h3>
+<h3 id=mut与隐藏><a href=#mut与隐藏 class=h-anchor>></a>mut与隐藏</h3>
 <p><strong>隐藏</strong>（使用let）：可以改变值的类型并且复用相同的变量名，实际上创建了一个拥有新类型的新变量。隐藏了之前创建的同名变量。</p>
 <p><strong>mut</strong>：如果给可变变量重新赋值，但是前面不加let，只能附相同类型的值</p>
 </blockquote>
-<h3 id=标量类型><a href=#标量类型 class=h-anchor>#</a>标量类型</h3>
+<h3 id=标量类型><a href=#标量类型 class=h-anchor>></a>标量类型</h3>
 <p>四种标量类型：整形、浮点型、布尔类型、字符类型</p>
 <p>整型：默认类型i32</p>
 <p>浮点型：默认类型f64</p>
 <p>字符类型：</p>
 <p>Rust 的 <code>char</code> 类型的大小为四个字节(four bytes)，并代表了一个 Unicode 标量值（Unicode Scalar Value），这意味着它可以比 ASCII 表示更多内容。在 Rust 中，拼音字母（Accented letters），中文、日文、韩文等字符，emoji（绘文字）以及零长度的空白字符都是有效的 <code>char</code> 值。Unicode 标量值包含从 <code>U+0000</code> 到 <code>U+D7FF</code> 和 <code>U+E000</code> 到 <code>U+10FFFF</code> 在内的值。不过，“字符” 并不是一个 Unicode 中的概念，所以人直觉上的 “字符” 可能与 Rust 中的 <code>char</code> 并不符合</p>
-<h3 id=复合类型><a href=#复合类型 class=h-anchor>#</a>复合类型</h3>
+<h3 id=复合类型><a href=#复合类型 class=h-anchor>></a>复合类型</h3>
 <p>Rust 有两个原生的复合类型：元组、数组</p>
-<h4 id=元组><a href=#元组 class=h-anchor>#</a>元组</h4>
+<h4 id=元组><a href=#元组 class=h-anchor>></a>元组</h4>
 <p>元组是一个将多个其他类型的值组合进一个复合类型的主要方式。元组长度固定：一旦声明，其长度不会增大或缩小。</p>
 <p>例如：</p>
 <blockquote>
@@ -176,7 +176,7 @@ registry = &ldquo;git://mirrors.ustc.edu.cn/crates.io-index&rdquo;</p>
 <p>let one = x.2;</p>
 <p>}</p>
 </blockquote>
-<h4 id=数组><a href=#数组 class=h-anchor>#</a>数组</h4>
+<h4 id=数组><a href=#数组 class=h-anchor>></a>数组</h4>
 <p>与元组不同，数组中的每个元素的类型必须相同；</p>
 <p>Rust 中的数组是固定长度的：一旦声明，它们的长度不能增长或缩小。</p>
 <p>数组是一整块分配在栈上的内存，可以使用索引来访问数组的元素。</p>
@@ -187,8 +187,8 @@ registry = &ldquo;git://mirrors.ustc.edu.cn/crates.io-index&rdquo;</p>
 <p>let a = [3; 5];</p>
 </blockquote>
 <p>vector 类型是标准库提供的一个 <strong>允许</strong> 增长和缩小长度的类似数组的集合类型。当不确定是应该使用数组还是 vector 的时候，你可能应该使用 vector</p>
-<h2 id=三函数与控制流><a href=#三函数与控制流 class=h-anchor>#</a>三、函数与控制流</h2>
-<h4 id=命名规则><a href=#命名规则 class=h-anchor>#</a>命名规则：</h4>
+<h2 id=三函数与控制流><a href=#三函数与控制流 class=h-anchor>></a>三、函数与控制流</h2>
+<h4 id=命名规则><a href=#命名规则 class=h-anchor>></a>命名规则：</h4>
 <p>Rust 代码中的函数和变量名使用 <em>snake case</em> 规范风格。在 snake case 中，所有字母都是小写并使用下划线分隔单词</p>
 <blockquote>
 <p>println!(&ldquo;The value of x is: {}&rdquo;, x);</p>
@@ -212,7 +212,7 @@ registry = &ldquo;git://mirrors.ustc.edu.cn/crates.io-index&rdquo;</p>
 <span style=color:#960050;background-color:#1e0010>为代码块</span>
 x<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span><span style=color:#960050;background-color:#1e0010>为表达式，表达式的结尾没有分号</span>
 <span style=color:#960050;background-color:#1e0010>如果在表达式的结尾加上分号，它就变成了语句，而语句不会返回值</span>
-</code></pre></div><h4 id=具有返回值的函数><a href=#具有返回值的函数 class=h-anchor>#</a>具有返回值的函数</h4>
+</code></pre></div><h4 id=具有返回值的函数><a href=#具有返回值的函数 class=h-anchor>></a>具有返回值的函数</h4>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>five</span>() -&gt; <span style=color:#66d9ef>i32</span> {
     <span style=color:#ae81ff>5</span>
 }
@@ -223,7 +223,7 @@ x<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span><span style
     println!(<span style=color:#e6db74>&#34;The value of x is: {}&#34;</span>, x);
 }
 <span style=color:#75715e>//在 Rust 中，函数的返回值等同于函数体最后一个表达式的值。使用 return 关键字和指定值，可从函数中提前返回；但大部分函数隐式的返回最后的表达式
-</span></code></pre></div><h4 id=控制流><a href=#控制流 class=h-anchor>#</a>控制流</h4>
+</span></code></pre></div><h4 id=控制流><a href=#控制流 class=h-anchor>></a>控制流</h4>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>main</span>() {
     <span style=color:#66d9ef>let</span> condition <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>;
     <span style=color:#66d9ef>let</span> number <span style=color:#f92672>=</span> <span style=color:#66d9ef>if</span> condition {
@@ -252,9 +252,9 @@ x<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span><span style
     println!(<span style=color:#e6db74>&#34;LIFTOFF!!!&#34;</span>);
 }
 <span style=color:#75715e>//输出3 2 1
-</span></code></pre></div><h2 id=四所有权><a href=#四所有权 class=h-anchor>#</a>四、所有权</h2>
+</span></code></pre></div><h2 id=四所有权><a href=#四所有权 class=h-anchor>></a>四、所有权</h2>
 <p>所有权（系统）是 Rust 最为与众不同的特性，它让 Rust 无需垃圾回收（garbage collector）即可保障内存安全</p>
-<h4 id=所有权规则><a href=#所有权规则 class=h-anchor>#</a>所有权规则</h4>
+<h4 id=所有权规则><a href=#所有权规则 class=h-anchor>></a>所有权规则</h4>
 <blockquote>
 <ol>
 <li>Rust 中的每一个值都有一个被称为其 <strong>所有者</strong>（<em>owner</em>）的变量。</li>
@@ -267,19 +267,19 @@ x<span style=color:#f92672>+</span><span style=color:#ae81ff>1</span><span style
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>let</span> s <span style=color:#f92672>=</span> String::from(<span style=color:#e6db74>&#34;hello&#34;</span>);
 </code></pre></div><p>在有 <strong>垃圾回收</strong>（<em>garbage collector</em>，<em>GC</em>）的语言中， GC 记录并清除不再使用的内存，而我们并不需要关心它；Rust 采取了一个不同的策略：内存在拥有它的变量离开作用域后就被自动释放。</p>
 <p>rsut在作用域结尾，自动调用drop，释放内存</p>
-<h4 id=变量与数据交互的方式一移动><a href=#变量与数据交互的方式一移动 class=h-anchor>#</a>变量与数据交互的方式（一）：移动</h4>
+<h4 id=变量与数据交互的方式一移动><a href=#变量与数据交互的方式一移动 class=h-anchor>></a>变量与数据交互的方式（一）：移动</h4>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>let</span> s1 <span style=color:#f92672>=</span> String::from(<span style=color:#e6db74>&#34;hello&#34;</span>);
 <span style=color:#66d9ef>let</span> s2 <span style=color:#f92672>=</span> s1;
 <span style=color:#75715e>//只是在栈上复制
 </span><span style=color:#75715e></span>println!(<span style=color:#e6db74>&#34;{}, world!&#34;</span>, s1);
 <span style=color:#75715e>//为防止二次释放，导致内存污染，rust认为s1已经无效，s1已经被移动到了s2，作用域结束时，rust只需要释放s2即可
 </span></code></pre></div><p>Rust 永远也不会自动创建数据的 “深拷贝”。因此，任何 <strong>自动</strong> 的复制可以被认为对运行时性能影响较小。</p>
-<h4 id=变量与数据交互的方式二克隆><a href=#变量与数据交互的方式二克隆 class=h-anchor>#</a>变量与数据交互的方式（二）：克隆</h4>
+<h4 id=变量与数据交互的方式二克隆><a href=#变量与数据交互的方式二克隆 class=h-anchor>></a>变量与数据交互的方式（二）：克隆</h4>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>let</span> s1 <span style=color:#f92672>=</span> String::from(<span style=color:#e6db74>&#34;hello&#34;</span>);
 <span style=color:#66d9ef>let</span> s2 <span style=color:#f92672>=</span> s1.clone();
 <span style=color:#75715e>//在堆上复制
 </span><span style=color:#75715e></span>println!(<span style=color:#e6db74>&#34;s1 = {}, s2 = {}&#34;</span>, s1, s2);
-</code></pre></div><h4 id=只在栈上的数据拷贝><a href=#只在栈上的数据拷贝 class=h-anchor>#</a>只在栈上的数据：拷贝</h4>
+</code></pre></div><h4 id=只在栈上的数据拷贝><a href=#只在栈上的数据拷贝 class=h-anchor>></a>只在栈上的数据：拷贝</h4>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>let</span> x <span style=color:#f92672>=</span> <span style=color:#ae81ff>5</span>;
 <span style=color:#66d9ef>let</span> y <span style=color:#f92672>=</span> x;
 
@@ -295,7 +295,7 @@ println!(<span style=color:#e6db74>&#34;x = {}, y = {}&#34;</span>, x, y);
 <li>元组，当且仅当其包含的类型也都是 <code>Copy</code> 的时候。比如，<code>(i32, i32)</code> 是 <code>Copy</code> 的，但 <code>(i32, String)</code> 就不是。</li>
 </ul>
 </blockquote>
-<h4 id=所有权与函数><a href=#所有权与函数 class=h-anchor>#</a>所有权与函数</h4>
+<h4 id=所有权与函数><a href=#所有权与函数 class=h-anchor>></a>所有权与函数</h4>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>main</span>() {
     <span style=color:#66d9ef>let</span> s <span style=color:#f92672>=</span> String::from(<span style=color:#e6db74>&#34;hello&#34;</span>);  <span style=color:#75715e>// s 进入作用域
 </span><span style=color:#75715e></span>
@@ -317,12 +317,12 @@ println!(<span style=color:#e6db74>&#34;x = {}, y = {}&#34;</span>, x, y);
 <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>makes_copy</span>(some_integer: <span style=color:#66d9ef>i32</span>) { <span style=color:#75715e>// some_integer 进入作用域
 </span><span style=color:#75715e></span>    println!(<span style=color:#e6db74>&#34;{}&#34;</span>, some_integer);
 } <span style=color:#75715e>// 这里，some_integer 移出作用域。不会有特殊操作
-</span></code></pre></div><h4 id=引用与借用><a href=#引用与借用 class=h-anchor>#</a>引用与借用</h4>
+</span></code></pre></div><h4 id=引用与借用><a href=#引用与借用 class=h-anchor>></a>引用与借用</h4>
 <p>& 符号就是 <strong>引用</strong>，它们允许你使用值但不获取其所有权</p>
 <p>当函数使用引用而不是实际值作为参数，无需返回值来交还所有权，因为就不曾拥有所有权。</p>
 <p>我们将获取引用作为函数参数称为 <strong>借用</strong>（<em>borrowing</em>）。</p>
 <p>正如变量默认是不可变的，引用也一样。（默认）不允许修改引用的值。</p>
-<h5 id=可变引用><a href=#可变引用 class=h-anchor>#</a>可变引用：</h5>
+<h5 id=可变引用><a href=#可变引用 class=h-anchor>></a>可变引用：</h5>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>main</span>() {
     <span style=color:#66d9ef>let</span> <span style=color:#66d9ef>mut</span> s <span style=color:#f92672>=</span> String::from(<span style=color:#e6db74>&#34;hello&#34;</span>);
 
@@ -372,7 +372,7 @@ println!(<span style=color:#e6db74>&#34;{}, {}, and {}&#34;</span>, r1, r2, r3);
 <span style=color:#75715e>//注意一个引用的作用域从声明的地方开始一直持续到最后一次使用为止
 </span><span style=color:#75715e>//不可变引用 r1 和 r2 的作用域在 println! 最后一次使用之后结束，这也是创建可变引用 r3 的地方。它们的作用域没有重叠，所以代码是可以编译的。
 </span><span style=color:#75715e></span><span style=color:#f92672>-----------------------------------------</span>
-</code></pre></div><h5 id=悬垂引用><a href=#悬垂引用 class=h-anchor>#</a>悬垂引用：</h5>
+</code></pre></div><h5 id=悬垂引用><a href=#悬垂引用 class=h-anchor>></a>悬垂引用：</h5>
 <p>在具有指针的语言中，很容易通过释放内存时保留指向它的指针而错误地生成一个 <strong>悬垂指针</strong>（<em>dangling pointer</em>），所谓悬垂指针是其指向的内存可能已经被分配给其它持有者。相比之下，在 Rust 中编译器确保引用永远也不会变成悬垂状态：当你拥有一些数据的引用，编译器确保数据不会在其引用之前离开作用域。</p>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>main</span>() {
     <span style=color:#66d9ef>let</span> reference_to_nothing <span style=color:#f92672>=</span> dangle();
@@ -390,14 +390,14 @@ println!(<span style=color:#e6db74>&#34;{}, {}, and {}&#34;</span>, r1, r2, r3);
 
     s
 }
-</code></pre></div><h5 id=引用规则><a href=#引用规则 class=h-anchor>#</a>引用规则</h5>
+</code></pre></div><h5 id=引用规则><a href=#引用规则 class=h-anchor>></a>引用规则</h5>
 <blockquote>
 <ul>
 <li>在任意给定时间，<strong>要么</strong> 只能有一个可变引用，<strong>要么</strong> 只能有多个不可变引用。</li>
 <li>引用必须总是有效的。</li>
 </ul>
 </blockquote>
-<h4 id=slice类型><a href=#slice类型 class=h-anchor>#</a>Slice类型</h4>
+<h4 id=slice类型><a href=#slice类型 class=h-anchor>></a>Slice类型</h4>
 <p>另一个没有所有权的数据类型是 <em>slice</em>。slice 允许你引用集合中一段连续的元素序列，而不用引用整个集合。</p>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#75715e>//“字符串 slice” 的类型声明写作 &amp;str
 </span><span style=color:#75715e>//Slice存储第一个集合元素的引用和一个集合总长度
@@ -416,9 +416,9 @@ println!(<span style=color:#e6db74>&#34;{}, {}, and {}&#34;</span>, r1, r2, r3);
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>let</span> s <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;Hello, world!&#34;</span>;
 <span style=color:#75715e>//字符串字面值被储存在二进制文件
 </span><span style=color:#75715e>//这里 s 的类型是 &amp;str：它是一个指向二进制程序特定位置的 slice。这也就是为什么字符串字面值是不可变的；&amp;str 是一个不可变引用
-</span></code></pre></div><h2 id=五结构体><a href=#五结构体 class=h-anchor>#</a>五、结构体</h2>
-<h3 id=定义并实例化结构体><a href=#定义并实例化结构体 class=h-anchor>#</a>定义并实例化结构体</h3>
-<h6 id=变量与字段同名时的字段初始化简写语法><a href=#变量与字段同名时的字段初始化简写语法 class=h-anchor>#</a>变量与字段同名时的字段初始化简写语法</h6>
+</span></code></pre></div><h2 id=五结构体><a href=#五结构体 class=h-anchor>></a>五、结构体</h2>
+<h3 id=定义并实例化结构体><a href=#定义并实例化结构体 class=h-anchor>></a>定义并实例化结构体</h3>
+<h6 id=变量与字段同名时的字段初始化简写语法><a href=#变量与字段同名时的字段初始化简写语法 class=h-anchor>></a>变量与字段同名时的字段初始化简写语法</h6>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>build_user</span>(email: String, username: String) -&gt; <span style=color:#a6e22e>User</span> {
     User {
         email,
@@ -427,7 +427,7 @@ println!(<span style=color:#e6db74>&#34;{}, {}, and {}&#34;</span>, r1, r2, r3);
         sign_in_count: <span style=color:#ae81ff>1</span>,
     }
 }
-</code></pre></div><h6 id=使用结构体更新语法从其他实例创建实例><a href=#使用结构体更新语法从其他实例创建实例 class=h-anchor>#</a>使用结构体更新语法从其他实例创建实例</h6>
+</code></pre></div><h6 id=使用结构体更新语法从其他实例创建实例><a href=#使用结构体更新语法从其他实例创建实例 class=h-anchor>></a>使用结构体更新语法从其他实例创建实例</h6>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>let</span> user2 <span style=color:#f92672>=</span> User {
     email: String::from(<span style=color:#e6db74>&#34;another@example.com&#34;</span>),
     username: String::from(<span style=color:#e6db74>&#34;anotherusername567&#34;</span>),
@@ -440,13 +440,13 @@ println!(<span style=color:#e6db74>&#34;{}, {}, and {}&#34;</span>, r1, r2, r3);
     username: String::from(<span style=color:#e6db74>&#34;anotherusername567&#34;</span>),
     <span style=color:#f92672>..</span>user1
 };
-</code></pre></div><h6 id=使用没有命名字段的元组结构体来创建不同的类型><a href=#使用没有命名字段的元组结构体来创建不同的类型 class=h-anchor>#</a>使用没有命名字段的元组结构体来创建不同的类型</h6>
+</code></pre></div><h6 id=使用没有命名字段的元组结构体来创建不同的类型><a href=#使用没有命名字段的元组结构体来创建不同的类型 class=h-anchor>></a>使用没有命名字段的元组结构体来创建不同的类型</h6>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>Color</span>(<span style=color:#66d9ef>i32</span>, <span style=color:#66d9ef>i32</span>, <span style=color:#66d9ef>i32</span>);
 <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>Point</span>(<span style=color:#66d9ef>i32</span>, <span style=color:#66d9ef>i32</span>, <span style=color:#66d9ef>i32</span>);
 
 <span style=color:#66d9ef>let</span> black <span style=color:#f92672>=</span> Color(<span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>);
 <span style=color:#66d9ef>let</span> origin <span style=color:#f92672>=</span> Point(<span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>);
-</code></pre></div><h6 id=没有任何字段的类单元结构体><a href=#没有任何字段的类单元结构体 class=h-anchor>#</a>没有任何字段的类单元结构体</h6>
+</code></pre></div><h6 id=没有任何字段的类单元结构体><a href=#没有任何字段的类单元结构体 class=h-anchor>></a>没有任何字段的类单元结构体</h6>
 <p>我们也可以定义一个没有任何字段的结构体！它们被称为 <strong>类单元结构体</strong>（<em>unit-like structs</em>）因为它们类似于 <code>()</code>，即 unit 类型。类单元结构体常常在你想要在某个类型上实现 trait 但不需要在类型中存储数据的时候发挥作用</p>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#75715e>#[derive(Debug)]</span>
 <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>Rectangle</span> {
@@ -465,7 +465,7 @@ println!(<span style=color:#e6db74>&#34;{}, {}, and {}&#34;</span>, r1, r2, r3);
     height: <span style=color:#ae81ff>50</span>,
 }
 
-</code></pre></div><h3 id=方法语法><a href=#方法语法 class=h-anchor>#</a>方法语法</h3>
+</code></pre></div><h3 id=方法语法><a href=#方法语法 class=h-anchor>></a>方法语法</h3>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#75715e>#[derive(Debug)]</span>
 <span style=color:#66d9ef>struct</span> <span style=color:#a6e22e>Rectangle</span> {
     width: <span style=color:#66d9ef>u32</span>,
@@ -507,7 +507,7 @@ println!(<span style=color:#e6db74>&#34;{}, {}, and {}&#34;</span>, r1, r2, r3);
     println!(<span style=color:#e6db74>&#34;Can rect1 hold rect2? {}&#34;</span>, rect1.can_hold(<span style=color:#f92672>&amp;</span>rect2));
     println!(<span style=color:#e6db74>&#34;Can rect1 hold rect3? {}&#34;</span>, rect1.can_hold(<span style=color:#f92672>&amp;</span>rect3));
 }
-</code></pre></div><h6 id=关联函数><a href=#关联函数 class=h-anchor>#</a>关联函数</h6>
+</code></pre></div><h6 id=关联函数><a href=#关联函数 class=h-anchor>></a>关联函数</h6>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>impl</span> Rectangle {
     <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>square</span>(size: <span style=color:#66d9ef>u32</span>) -&gt; <span style=color:#a6e22e>Rectangle</span> {
         Rectangle { width: <span style=color:#a6e22e>size</span>, height: <span style=color:#a6e22e>size</span> }
@@ -527,7 +527,7 @@ println!(<span style=color:#e6db74>&#34;{}, {}, and {}&#34;</span>, r1, r2, r3);
         self.width <span style=color:#f92672>&gt;</span> other.width <span style=color:#f92672>&amp;&amp;</span> self.height <span style=color:#f92672>&gt;</span> other.height
     }
 }
-</code></pre></div><h2 id=六枚举与模式匹配><a href=#六枚举与模式匹配 class=h-anchor>#</a>六、枚举与模式匹配</h2>
+</code></pre></div><h2 id=六枚举与模式匹配><a href=#六枚举与模式匹配 class=h-anchor>></a>六、枚举与模式匹配</h2>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>enum</span> <span style=color:#a6e22e>Message</span> {
     Quit,
     Move { x: <span style=color:#66d9ef>i32</span>, y: <span style=color:#66d9ef>i32</span> },
@@ -539,15 +539,15 @@ println!(<span style=color:#e6db74>&#34;{}, {}, and {}&#34;</span>, r1, r2, r3);
 Move <span style=color:#960050;background-color:#1e0010>包含一个匿名结构体。</span>
 Write <span style=color:#960050;background-color:#1e0010>包含单独一个</span> String<span style=color:#960050;background-color:#1e0010>。</span>
 ChangeColor <span style=color:#960050;background-color:#1e0010>包含三个</span> <span style=color:#66d9ef>i32</span><span style=color:#960050;background-color:#1e0010>。</span>
-</code></pre></div><h3 id=option枚举和其相对于空值的优势><a href=#option枚举和其相对于空值的优势 class=h-anchor>#</a>Option枚举和其相对于空值的优势</h3>
+</code></pre></div><h3 id=option枚举和其相对于空值的优势><a href=#option枚举和其相对于空值的优势 class=h-anchor>></a>Option枚举和其相对于空值的优势</h3>
 <p>Rust 并没有空值，不过它确实拥有一个可以编码存在或不存在概念的枚举。这个枚举是 <code>Option&lt;T></code>，而且它<a href=https://doc.rust-lang.org/std/option/enum.Option.html>定义于标准库中</a>，如下:</p>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>enum</span> Option<span style=color:#f92672>&lt;</span>T<span style=color:#f92672>&gt;</span> {
     Some(T),
     None,
 }
 </code></pre></div><p>为了拥有一个可能为空的值，你必须要显式的将其放入对应类型的 <code>Option&lt;T></code> 中。接着，当使用这个值时，必须明确的处理值为空的情况。只要一个值不是 <code>Option&lt;T></code> 类型，你就 <strong>可以</strong> 安全的认定它的值不为空</p>
-<h2 id=七使用包crate和模块管理不断增长的项目><a href=#七使用包crate和模块管理不断增长的项目 class=h-anchor>#</a>七、使用包、Crate和模块管理不断增长的项目</h2>
-<h3 id=包中所包含的内容由几条规则来确立><a href=#包中所包含的内容由几条规则来确立 class=h-anchor>#</a>包中所包含的内容由几条规则来确立</h3>
+<h2 id=七使用包crate和模块管理不断增长的项目><a href=#七使用包crate和模块管理不断增长的项目 class=h-anchor>></a>七、使用包、Crate和模块管理不断增长的项目</h2>
+<h3 id=包中所包含的内容由几条规则来确立><a href=#包中所包含的内容由几条规则来确立 class=h-anchor>></a>包中所包含的内容由几条规则来确立</h3>
 <blockquote>
 <p>一个包中至多 <strong>只能</strong> 包含一个库 crate(library crate)；</p>
 <p>包中可以包含任意多个二进制 crate(binary crate)；</p>
@@ -558,7 +558,7 @@ ChangeColor <span style=color:#960050;background-color:#1e0010>包含三个</spa
 <p>Rust 中默认所有项（函数、方法、结构体、枚举、模块和常量）都是私有的。</p>
 <p>如果我们在一个结构体定义的前面使用了 <code>pub</code> ，这个结构体会变成公有的，但是这个结构体的字段仍然是私有的.</p>
 <p>枚举成员默认就是公有的。结构体通常使用时，不必将它们的字段公有化，因此结构体遵循常规，内容全部是私有的，除非使用 <code>pub</code> 关键字。</p>
-<h3 id=使用use关键字将名称引入作用域><a href=#使用use关键字将名称引入作用域 class=h-anchor>#</a>使用use关键字将名称引入作用域</h3>
+<h3 id=使用use关键字将名称引入作用域><a href=#使用use关键字将名称引入作用域 class=h-anchor>></a>使用use关键字将名称引入作用域</h3>
 <p>要想使用 <code>use</code> 将函数的父模块引入作用域，我们必须在调用函数时指定父模块，这样可以清晰地表明函数不是在本地定义的，同时使完整路径的重复度最小化</p>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>mod</span> front_of_house {
     <span style=color:#66d9ef>pub</span> <span style=color:#66d9ef>mod</span> hosting {
@@ -602,7 +602,7 @@ ChangeColor <span style=color:#960050;background-color:#1e0010>包含三个</spa
 <span style=color:#66d9ef>fn</span> <span style=color:#a6e22e>function2</span>() -&gt; <span style=color:#a6e22e>IoResult</span><span style=color:#f92672>&lt;</span>()<span style=color:#f92672>&gt;</span> {
     <span style=color:#75715e>// --snip--
 </span><span style=color:#75715e></span>}
-</code></pre></div><h3 id=指定嵌套的路径在一行中将多个带有相同前缀的项引入作用域><a href=#指定嵌套的路径在一行中将多个带有相同前缀的项引入作用域 class=h-anchor>#</a>指定嵌套的路径在一行中将多个带有相同前缀的项引入作用域</h3>
+</code></pre></div><h3 id=指定嵌套的路径在一行中将多个带有相同前缀的项引入作用域><a href=#指定嵌套的路径在一行中将多个带有相同前缀的项引入作用域 class=h-anchor>></a>指定嵌套的路径在一行中将多个带有相同前缀的项引入作用域</h3>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>use</span> std::cmp::Ordering;
 <span style=color:#66d9ef>use</span> std::io;
 <span style=color:#960050;background-color:#1e0010>写做：</span>
@@ -615,16 +615,16 @@ ChangeColor <span style=color:#960050;background-color:#1e0010>包含三个</spa
 <span style=color:#f92672>--------------------------------</span>
 <span style=color:#66d9ef>use</span> std::collections::<span style=color:#f92672>*</span>;
 <span style=color:#75715e>//将一个路径下所有公有项引入作用域，可以指定路径后跟 *
-</span></code></pre></div><h2 id=八常见集合><a href=#八常见集合 class=h-anchor>#</a>八、常见集合</h2>
+</span></code></pre></div><h2 id=八常见集合><a href=#八常见集合 class=h-anchor>></a>八、常见集合</h2>
 <p>不同于内建的数组和元组类型，这些集合指向的数据是储存在堆上的，这意味着数据的数量不必在编译时就已知，并且还可以随着程序的运行增长或缩小</p>
-<h3 id=vector><a href=#vector class=h-anchor>#</a>vector</h3>
+<h3 id=vector><a href=#vector class=h-anchor>></a>vector</h3>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>let</span> v: Vec<span style=color:#f92672>&lt;</span><span style=color:#66d9ef>i32</span><span style=color:#f92672>&gt;</span> <span style=color:#f92672>=</span> Vec::new();
-</code></pre></div><h3 id=字符串><a href=#字符串 class=h-anchor>#</a>字符串</h3>
+</code></pre></div><h3 id=字符串><a href=#字符串 class=h-anchor>></a>字符串</h3>
 <p><code>String</code> 是一个 <code>Vec&lt;u8></code> 的封装</p>
-<h2 id=九错误处理><a href=#九错误处理 class=h-anchor>#</a>九、错误处理</h2>
+<h2 id=九错误处理><a href=#九错误处理 class=h-anchor>></a>九、错误处理</h2>
 <p>阅读 backtrace 的关键是从头开始读直到发现你编写的文件。这就是问题的发源地。这一行往上是你的代码所调用的代码；往下则是调用你的代码的代码。</p>
 <p>为了获取带有这些信息的 backtrace，必须启用 debug 标识。当不使用 <code>--release</code> 参数运行 cargo build 或 cargo run 时 debug 标识会默认启用</p>
-<h3 id=运算符可被用于返回result的函数><a href=#运算符可被用于返回result的函数 class=h-anchor>#</a>？运算符可被用于返回Result的函数</h3>
+<h3 id=运算符可被用于返回result的函数><a href=#运算符可被用于返回result的函数 class=h-anchor>></a>？运算符可被用于返回Result的函数</h3>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-rust data-lang=rust><span style=color:#66d9ef>use</span> std::error::Error;
 <span style=color:#66d9ef>use</span> std::fs::File;
 
@@ -633,7 +633,7 @@ ChangeColor <span style=color:#960050;background-color:#1e0010>包含三个</spa
 
     Ok(())
 }
-</code></pre></div><h2 id=十泛型trait与生命周期><a href=#十泛型trait与生命周期 class=h-anchor>#</a>十、泛型、trait与生命周期</h2>
+</code></pre></div><h2 id=十泛型trait与生命周期><a href=#十泛型trait与生命周期 class=h-anchor>></a>十、泛型、trait与生命周期</h2>
 </div>
 <div class=pagination>
 <div class=pagination__title>

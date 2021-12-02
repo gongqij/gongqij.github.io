@@ -102,7 +102,7 @@ calls into the runtime scheduler(gopark, goready)
 </div>
 <div class=post-content>
 <h1 id=channel>channel</h1>
-<h2 id=channel的作用><a href=#channel的作用 class=h-anchor>#</a>channel的作用</h2>
+<h2 id=channel的作用><a href=#channel的作用 class=h-anchor>></a>channel的作用</h2>
 <ol>
 <li>
 <p>goroutine之间安全通信</p>
@@ -125,18 +125,18 @@ calls into the runtime scheduler(gopark, goready)
 <p>calls into the runtime scheduler(gopark, goready)</p>
 </li>
 </ol>
-<h2 id=设计原理><a href=#设计原理 class=h-anchor>#</a>设计原理</h2>
+<h2 id=设计原理><a href=#设计原理 class=h-anchor>></a>设计原理</h2>
 <p><img src=/head.png alt=shared-memory></p>
 <p>​ <strong>多线程使用共享内存传递数据</strong></p>
 <p><img src=https://img.draveness.me/2020-01-28-15802171487080-channel-and-goroutines.png alt=channel-and-goroutines></p>
 <p>​ <strong>Goroutine 使用 Channel 传递数据</strong></p>
-<h3 id=先入先出><a href=#先入先出 class=h-anchor>#</a>先入先出</h3>
+<h3 id=先入先出><a href=#先入先出 class=h-anchor>></a>先入先出</h3>
 <p>目前的 Channel 收发操作均遵循了先入先出（FIFO）的设计，具体规则如下：</p>
 <ul>
 <li>先从 Channel 读取数据的 Goroutine 会先接收到数据；</li>
 <li>先向 Channel 发送数据的 Goroutine 会得到先发送数据的权利；</li>
 </ul>
-<h2 id=数据结构><a href=#数据结构 class=h-anchor>#</a>数据结构</h2>
+<h2 id=数据结构><a href=#数据结构 class=h-anchor>></a>数据结构</h2>
 <p>Channel 在运行时的内部表示是 <a href=https://github.com/golang/go/blob/e35876ec6591768edace6c6f3b12646899fd1b11/src/runtime/chan.go#L32><code>runtime.hchan</code></a>，该结构体中包含了一个用于保护成员变量的<strong>互斥锁</strong>，从某种程度上说，Channel 是一个<strong>用于同步和通信的有锁队列</strong></p>
 <p>Go 语言的 Channel 在运行时使用 <a href=https://github.com/golang/go/blob/e35876ec6591768edace6c6f3b12646899fd1b11/src/runtime/chan.go#L32><code>runtime.hchan</code></a> 结构体表示。我们在 Go 语言中创建新的 Channel 时，实际上创建的都是如下所示的结构体：</p>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#66d9ef>type</span> <span style=color:#a6e22e>hchan</span> <span style=color:#66d9ef>struct</span> {
@@ -184,12 +184,12 @@ calls into the runtime scheduler(gopark, goready)
 <p><img src=https://user-images.githubusercontent.com/7698088/61179068-806ee080-a62d-11e9-818c-16af42025b1b.png alt=img></p>
 <p><code>recvq</code> 的数据结构如下(双向循环链表，此时recvq中有两个sudog，两个goroutine被阻塞在接收操作)：</p>
 <p><img src=https://user-images.githubusercontent.com/7698088/61179210-d3966280-a630-11e9-8c73-5a22340910a6.png alt=img></p>
-<h2 id=创建通道><a href=#创建通道 class=h-anchor>#</a>创建通道</h2>
+<h2 id=创建通道><a href=#创建通道 class=h-anchor>></a>创建通道</h2>
 <p>新建一个 chan 后，内存在<strong>堆</strong>上分配，大概长这样： <img src=https://user-images.githubusercontent.com/7698088/61337268-4d179600-a867-11e9-98ac-f979e3da00a6.png alt=img></p>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#a6e22e>ch</span><span style=color:#f92672>:=</span>make(<span style=color:#66d9ef>chan</span> <span style=color:#66d9ef>int</span>,<span style=color:#ae81ff>3</span>)
 <span style=color:#75715e>//make关键字 --&gt; runtime.makechan 
 </span><span style=color:#75715e>//在堆上分配内存，返回一个指针，所以我们可以用ch本身传参，不需要ch的指针
-</span></code></pre></div><h2 id=发送数据><a href=#发送数据 class=h-anchor>#</a>发送数据</h2>
+</span></code></pre></div><h2 id=发送数据><a href=#发送数据 class=h-anchor>></a>发送数据</h2>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#75715e>// 位于 src/runtime/chan.go
 </span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>chansend</span>(<span style=color:#a6e22e>c</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>hchan</span>, <span style=color:#a6e22e>ep</span> <span style=color:#a6e22e>unsafe</span>.<span style=color:#a6e22e>Pointer</span>, <span style=color:#a6e22e>block</span> <span style=color:#66d9ef>bool</span>, <span style=color:#a6e22e>callerpc</span> <span style=color:#66d9ef>uintptr</span>) <span style=color:#66d9ef>bool</span> {
     <span style=color:#75715e>// 如果 channel 是 nil
@@ -320,7 +320,7 @@ calls into the runtime scheduler(gopark, goready)
 <li>当缓冲区存在空余空间时，将发送的数据写入 Channel 的缓冲区；</li>
 <li>当不存在缓冲区或者缓冲区已满时，等待其他 Goroutine 从 Channel 接收数据；</li>
 </ul>
-<h3 id=1直接发送><a href=#1直接发送 class=h-anchor>#</a>1、直接发送</h3>
+<h3 id=1直接发送><a href=#1直接发送 class=h-anchor>></a>1、直接发送</h3>
 <blockquote>
 <p>两种情况（前提channel没有关闭）：</p>
 <p>1、有缓存但是此时为空且存在读等待的接收者（绕过buffer）</p>
@@ -371,14 +371,14 @@ calls into the runtime scheduler(gopark, goready)
 <p>![](/Users/gongqi/Nutstore Files/个人总结/pic/channel-直接发送.png)</p>
 <p>直接发送的好处：</p>
 <p>减少了一次内存 copy：不用先拷贝到 channel 的 buf，直接由发送者到接收者，没有中间商赚差价，效率得以提高，完美。</p>
-<h3 id=2缓冲区><a href=#2缓冲区 class=h-anchor>#</a>2、缓冲区</h3>
+<h3 id=2缓冲区><a href=#2缓冲区 class=h-anchor>></a>2、缓冲区</h3>
 <p>一种情况</p>
 <blockquote>
 <p>有缓存区且channel没满</p>
 </blockquote>
 <p><img src=https://img.draveness.me/2020-01-28-15802171487104-channel-buffer-send.png alt=channel-buffer-send></p>
 <p>如果当前 Channel 的缓冲区未满，向 Channel 发送的数据会存储在 Channel 中 <code>sendx</code> 索引所在的位置并将 <code>sendx</code> 索引加一，由于这里的 <code>buf</code> 是一个循环数组，所以当 <code>sendx</code> 等于 <code>dataqsiz</code> 时就会重新回到数组开始的位置。</p>
-<h3 id=3阻塞发送><a href=#3阻塞发送 class=h-anchor>#</a>3、阻塞发送</h3>
+<h3 id=3阻塞发送><a href=#3阻塞发送 class=h-anchor>></a>3、阻塞发送</h3>
 <ol>
 <li>调用 <a href=https://github.com/golang/go/blob/e35876ec6591768edace6c6f3b12646899fd1b11/src/runtime/stubs.go#L18><code>runtime.getg</code></a> 获取发送数据使用的 Goroutine；</li>
 <li>执行 <a href=https://github.com/golang/go/blob/64c22b70bf00e15615bb17c29f808b55bc339682/src/runtime/proc.go#L320><code>runtime.acquireSudog</code></a> 函数获取 <a href=https://github.com/golang/go/blob/895b7c85addfffe19b66d8ca71c31799d6e55990/src/runtime/runtime2.go#L342><code>runtime.sudog</code></a> 结构体并设置这一次阻塞发送的相关信息，例如发送的 Channel、是否在 Select 控制结构中和待发送数据的内存地址等；</li>
@@ -386,7 +386,7 @@ calls into the runtime scheduler(gopark, goready)
 <li>调用 <a href=https://github.com/golang/go/blob/cfe3cd903f018dec3cb5997d53b1744df4e53909/src/runtime/proc.go#L309><code>runtime.goparkunlock</code></a> 函数将当前的 Goroutine 陷入沉睡等待唤醒；</li>
 <li>被调度器唤醒后会执行一些收尾工作，将一些属性置零并且释放 <a href=https://github.com/golang/go/blob/895b7c85addfffe19b66d8ca71c31799d6e55990/src/runtime/runtime2.go#L342><code>runtime.sudog</code></a> 结构体；</li>
 </ol>
-<h3 id=4小结><a href=#4小结 class=h-anchor>#</a>4、小结</h3>
+<h3 id=4小结><a href=#4小结 class=h-anchor>></a>4、小结</h3>
 <p>我们在这里可以简单梳理和总结一下使用 <code>ch &lt;- i</code> 表达式向 Channel 发送数据时遇到的几种情况：</p>
 <ol>
 <li><strong>如果当前 Channel 的 <code>recvq</code> 上存在已经被阻塞的 Goroutine，那么会直接将数据发送给当前的 Goroutine 并将其设置成下一个运行的 Goroutine；</strong></li>
@@ -413,9 +413,9 @@ calls into the runtime scheduler(gopark, goready)
 }
 </code></pre></div></li>
 </ol>
-<h3 id=5问题><a href=#5问题 class=h-anchor>#</a>5、问题</h3>
+<h3 id=5问题><a href=#5问题 class=h-anchor>></a>5、问题</h3>
 <p>对于有缓存channel，有无可能存在读等待的接收者且缓存不为空的情况，如果存在这种情况，一旦直接发送，那么数据不能保证先入先出了。</p>
-<h2 id=接收数据><a href=#接收数据 class=h-anchor>#</a>接收数据</h2>
+<h2 id=接收数据><a href=#接收数据 class=h-anchor>></a>接收数据</h2>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#75715e>// entry points for &lt;- c from compiled code
 </span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>chanrecv1</span>(<span style=color:#a6e22e>c</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>hchan</span>, <span style=color:#a6e22e>elem</span> <span style=color:#a6e22e>unsafe</span>.<span style=color:#a6e22e>Pointer</span>) {
     <span style=color:#a6e22e>chanrecv</span>(<span style=color:#a6e22e>c</span>, <span style=color:#a6e22e>elem</span>, <span style=color:#66d9ef>true</span>)
@@ -574,7 +574,7 @@ calls into the runtime scheduler(gopark, goready)
     <span style=color:#a6e22e>releaseSudog</span>(<span style=color:#a6e22e>mysg</span>)
     <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>true</span>, !<span style=color:#a6e22e>closed</span>
 }
-</code></pre></div><h3 id=1直接接收><a href=#1直接接收 class=h-anchor>#</a>1、直接接收</h3>
+</code></pre></div><h3 id=1直接接收><a href=#1直接接收 class=h-anchor>></a>1、直接接收</h3>
 <blockquote>
 <p>两种情况（前提channel没有关闭）：</p>
 <p>1、有缓存但是此时满了且存在写等待的发送者</p>
@@ -596,14 +596,14 @@ calls into the runtime scheduler(gopark, goready)
 </li>
 </ul>
 <p>无论发生哪种情况，运行时都会调用 <a href=https://draveness.me/golang/tree/runtime.goready><code>runtime.goready</code></a> 函数将当前处理器的 <code>runnext</code> 设置成发送数据的 Goroutine，在调度器下一次调度时将阻塞的发送方唤醒。</p>
-<h3 id=2缓存区><a href=#2缓存区 class=h-anchor>#</a>2、缓存区</h3>
+<h3 id=2缓存区><a href=#2缓存区 class=h-anchor>></a>2、缓存区</h3>
 <p>如果接收数据的内存地址不为空，那么就会直接使用 <a href=https://github.com/golang/go/blob/db16de920370892b0241d3fa0617dddff2417a4d/src/runtime/mbarrier.go#L156><code>runtime.typedmemmove</code></a> 将缓冲区中的数据拷贝到内存中、清除队列中的数据并完成收尾工作。</p>
 <p><img src=https://img.draveness.me/2020-01-28-15802171487125-channel-buffer-receive.png alt=channel-buffer-receive></p>
-<h3 id=3阻塞接收><a href=#3阻塞接收 class=h-anchor>#</a>3、阻塞接收</h3>
+<h3 id=3阻塞接收><a href=#3阻塞接收 class=h-anchor>></a>3、阻塞接收</h3>
 <p>当 Channel 的发送队列中<strong>不存在等待的 Goroutine 并且缓冲区中也不存在任何数据时</strong>，从管道中接收数据的操作会变成阻塞操作，然而不是所有的接收操作都是阻塞的，与 <code>select</code> 语句结合使用时就可能会使用到非阻塞的接收操作：</p>
 <p>在正常的接收场景中，我们会使用 <a href=https://github.com/golang/go/blob/895b7c85addfffe19b66d8ca71c31799d6e55990/src/runtime/runtime2.go#L342><code>runtime.sudog</code></a> 结构体将当前 Goroutine 包装成一个处于等待状态的 Goroutine 并将其加入到接收队列中。</p>
 <p>完成入队之后，上述代码还会调用 <a href=https://github.com/golang/go/blob/cfe3cd903f018dec3cb5997d53b1744df4e53909/src/runtime/proc.go#L309><code>runtime.goparkunlock</code></a> 函数立刻触发 Goroutine 的调度，让出处理器的使用权并等待调度器的调度。</p>
-<h3 id=4小结-1><a href=#4小结-1 class=h-anchor>#</a>4、小结</h3>
+<h3 id=4小结-1><a href=#4小结-1 class=h-anchor>></a>4、小结</h3>
 <p>我们梳理一下从 Channel 中接收数据时可能会发生的五种情况：</p>
 <ol>
 <li>如果 Channel 为空，那么就会直接调用 <a href=https://github.com/golang/go/blob/64c22b70bf00e15615bb17c29f808b55bc339682/src/runtime/proc.go#L287><code>runtime.gopark</code></a> 挂起当前 Goroutine；</li>
@@ -618,7 +618,7 @@ calls into the runtime scheduler(gopark, goready)
 <li>接收数据时发现 Channel 上存在等待发送数据的 Goroutine，立刻设置处理器的 <code>runnext</code> 属性，但是并不会立刻触发调度</li>
 <li>当缓冲区中不存在数据并且也不存在数据的发送者时；</li>
 </ol>
-<h2 id=关闭管道><a href=#关闭管道 class=h-anchor>#</a>关闭管道</h2>
+<h2 id=关闭管道><a href=#关闭管道 class=h-anchor>></a>关闭管道</h2>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>closechan</span>(<span style=color:#a6e22e>c</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>hchan</span>) {
     <span style=color:#75715e>// 关闭一个 nil channel，panic
 </span><span style=color:#75715e></span>    <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>c</span> <span style=color:#f92672>==</span> <span style=color:#66d9ef>nil</span> {
@@ -713,21 +713,21 @@ calls into the runtime scheduler(gopark, goready)
 <p>唤醒之后，该干嘛干嘛。sender 会继续执行 chansend 函数里 goparkunlock 函数之后的代码，很不幸，检测到 channel 已经关闭了，panic。receiver 则比较幸运，进行一些扫尾工作后，返回。这里，selected 返回 true，而返回值 received 则要根据 channel 是否关闭，返回不同的值。如果 channel 关闭，received 为 false，否则为 true。这我们分析的这种情况下，received 返回 false。</p>
 <p>主要工作就是将 <code>recvq</code> 和 <code>sendq</code> 两个队列中的数据加入到 Goroutine 列表 <code>gList</code> 中，与此同时该函数会清除所有 <code>sudog</code> 上未被处理的元素。</p>
 <p>该函数在最后会为所有被阻塞的 Goroutine 调用 <a href=https://github.com/golang/go/blob/64c22b70bf00e15615bb17c29f808b55bc339682/src/runtime/proc.go#L313><code>runtime.goready</code></a> 触发调度。</p>
-<h2 id=总结><a href=#总结 class=h-anchor>#</a>总结</h2>
-<h3 id=1无缓存channel总是采用直接发送接收的形式>1、无缓存channel<strong>总是</strong>采用<strong>直接发送接收</strong><a href=#1无缓存channel总是采用直接发送接收的形式 class=h-anchor>#</a>的形式：</h3>
+<h2 id=总结><a href=#总结 class=h-anchor>></a>总结</h2>
+<h3 id=1无缓存channel总是采用直接发送接收的形式>1、无缓存channel<strong>总是</strong>采用<strong>直接发送接收</strong><a href=#1无缓存channel总是采用直接发送接收的形式 class=h-anchor>></a>的形式：</h3>
 <ol>
 <li>存在读等待的接收者，发送者直接将数据从自己栈拷贝到接收者的栈上</li>
 <li>存在写等待的发送者，接收者直接从sudog中接收数据</li>
 </ol>
-<h3 id=2简单与性能取舍><a href=#2简单与性能取舍 class=h-anchor>#</a>2、简单与性能取舍:</h3>
+<h3 id=2简单与性能取舍><a href=#2简单与性能取舍 class=h-anchor>></a>2、简单与性能取舍:</h3>
 <p>复杂了代码，但是提高了性能</p>
 <h1 id=select>select</h1>
-<h2 id=两大特点><a href=#两大特点 class=h-anchor>#</a>两大特点：</h2>
+<h2 id=两大特点><a href=#两大特点 class=h-anchor>></a>两大特点：</h2>
 <ol>
 <li><code>select</code> 能在 Channel 上进行非阻塞的收发操作；</li>
 <li><code>select</code> 在遇到多个 Channel 同时响应时会<strong>随机</strong>挑选 <code>case</code> 执行；</li>
 </ol>
-<h2 id=数据结构-1><a href=#数据结构-1 class=h-anchor>#</a>数据结构</h2>
+<h2 id=数据结构-1><a href=#数据结构-1 class=h-anchor>></a>数据结构</h2>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#75715e>//select 控制结构中的 case使用 runtime.scase 结构体来表示
 </span><span style=color:#75715e></span><span style=color:#66d9ef>type</span> <span style=color:#a6e22e>scase</span> <span style=color:#66d9ef>struct</span> {
 	<span style=color:#a6e22e>c</span>           <span style=color:#f92672>*</span><span style=color:#a6e22e>hchan</span>
@@ -743,7 +743,7 @@ calls into the runtime scheduler(gopark, goready)
 	<span style=color:#a6e22e>caseSend</span>
 	<span style=color:#a6e22e>caseDefault</span>
 )
-</code></pre></div><h2 id=原理><a href=#原理 class=h-anchor>#</a>原理</h2>
+</code></pre></div><h2 id=原理><a href=#原理 class=h-anchor>></a>原理</h2>
 <p><code>select</code> 语句在编译期间会被转换成 <code>OSELECT</code> 节点。每一个 <code>OSELECT</code> 节点都会持有一组 <code>OCASE</code> 节点，如果 <code>OCASE</code> 的执行条件是空，那就意味着这是一个 <code>default</code> 节点:</p>
 <p><img src=https://img.draveness.me/2020-01-18-15793463657473-golang-oselect-and-ocases.png alt=golang-oselect-and-ocases></p>
 <p>​ <strong>图 5-7 OSELECT 和多个 OCASE</strong></p>
@@ -754,7 +754,7 @@ calls into the runtime scheduler(gopark, goready)
 <li><code>select</code> 存在两个 <code>case</code>，其中一个 <code>case</code> 是 <code>default</code>；</li>
 <li><code>select</code> 存在多个 <code>case</code>；</li>
 </ol>
-<h3 id=直接阻塞><a href=#直接阻塞 class=h-anchor>#</a>直接阻塞</h3>
+<h3 id=直接阻塞><a href=#直接阻塞 class=h-anchor>></a>直接阻塞</h3>
 <p><code>select</code> 不存在任何的 <code>case</code></p>
 <p><code>select {}</code> 的空语句转换成调用 <a href=https://github.com/golang/go/blob/c112289ee4141ebc31db50328c355b01278b987b/src/runtime/select.go#L104-L106><code>runtime.block</code></a> 函数：</p>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>block</span>() {
@@ -762,7 +762,7 @@ calls into the runtime scheduler(gopark, goready)
 }
 </code></pre></div><p><a href=https://github.com/golang/go/blob/c112289ee4141ebc31db50328c355b01278b987b/src/runtime/select.go#L104-L106><code>runtime.block</code></a> 函数的实现非常简单，它会调用 runtime.gopark 让出当前 Goroutine 对处理器的使用权，传入的等待原因是 <code>waitReasonSelectNoCases</code>。</p>
 <p>简单总结一下，空的 <code>select</code> 语句会直接阻塞当前的 Goroutine，导致 Goroutine 进入<strong>无法被唤醒的永久休眠状态</strong>。</p>
-<h3 id=单一管道><a href=#单一管道 class=h-anchor>#</a>单一管道</h3>
+<h3 id=单一管道><a href=#单一管道 class=h-anchor>></a>单一管道</h3>
 <p><code>select</code> 只存在一个 <code>case</code></p>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#75715e>// 改写前
 </span><span style=color:#75715e></span><span style=color:#66d9ef>select</span> {
@@ -778,9 +778,9 @@ calls into the runtime scheduler(gopark, goready)
 </span><span style=color:#75715e></span><span style=color:#f92672>...</span>
 </code></pre></div><p><a href=https://github.com/golang/go/blob/c729116332ffb66a21dd587e3ee003cb8d0b16fe/src/cmd/compile/internal/gc/select.go#L108-L370><code>cmd/compile/internal/gc.walkselectcases</code></a> 在处理单操作 <code>select</code> 语句时，会根据 Channel 的收发情况生成不同的语句。当 <code>case</code> 中的 Channel 是空指针时，就会直接挂起当前 Goroutine 并永久休眠。</p>
 <p>如果channel不是空指针，阻塞等待被唤醒</p>
-<h3 id=非阻塞操作><a href=#非阻塞操作 class=h-anchor>#</a>非阻塞操作</h3>
+<h3 id=非阻塞操作><a href=#非阻塞操作 class=h-anchor>></a>非阻塞操作</h3>
 <p><code>select</code> 存在两个 <code>case</code>，其中一个 <code>case</code> 是 <code>default</code></p>
-<h4 id=发送><a href=#发送 class=h-anchor>#</a>发送</h4>
+<h4 id=发送><a href=#发送 class=h-anchor>></a>发送</h4>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#66d9ef>select</span> {
 <span style=color:#66d9ef>case</span> <span style=color:#a6e22e>ch</span> <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>i</span>:
     <span style=color:#f92672>...</span>
@@ -798,7 +798,7 @@ calls into the runtime scheduler(gopark, goready)
 	<span style=color:#66d9ef>return</span> <span style=color:#a6e22e>chansend</span>(<span style=color:#a6e22e>c</span>, <span style=color:#a6e22e>elem</span>, <span style=color:#66d9ef>false</span>, <span style=color:#a6e22e>getcallerpc</span>())
 }
 <span style=color:#75715e>//不存在接收方或者缓冲区空间不足都不会阻塞当前 Goroutine 而是会直接返回
-</span></code></pre></div><h4 id=接收><a href=#接收 class=h-anchor>#</a>接收</h4>
+</span></code></pre></div><h4 id=接收><a href=#接收 class=h-anchor>></a>接收</h4>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#75715e>// 改写前
 </span><span style=color:#75715e></span><span style=color:#66d9ef>select</span> {
 <span style=color:#66d9ef>case</span> <span style=color:#a6e22e>v</span> <span style=color:#f92672>&lt;-</span> <span style=color:#a6e22e>ch</span>: <span style=color:#75715e>// case v, ok &lt;- ch:
@@ -823,7 +823,7 @@ calls into the runtime scheduler(gopark, goready)
 	<span style=color:#a6e22e>selected</span>, <span style=color:#f92672>*</span><span style=color:#a6e22e>received</span> = <span style=color:#a6e22e>chanrecv</span>(<span style=color:#a6e22e>c</span>, <span style=color:#a6e22e>elem</span>, <span style=color:#66d9ef>false</span>)
 	<span style=color:#66d9ef>return</span>
 }
-</code></pre></div><h3 id=处理流程><a href=#处理流程 class=h-anchor>#</a>处理流程</h3>
+</code></pre></div><h3 id=处理流程><a href=#处理流程 class=h-anchor>></a>处理流程</h3>
 <p>在默认的情况下，编译器会使用如下的流程处理 <code>select</code> 语句：</p>
 <ol>
 <li>
@@ -871,7 +871,7 @@ calls into the runtime scheduler(gopark, goready)
 <li>处理流程
 在默认的情况下，编译器会使用如下的流程处理 select 语句：在循环中根据 <code>case</code> 的类型做出不同的处理；</li>
 </ol>
-<h4 id=初始化><a href=#初始化 class=h-anchor>#</a>初始化</h4>
+<h4 id=初始化><a href=#初始化 class=h-anchor>></a>初始化</h4>
 <p><a href=https://github.com/golang/go/blob/d1969015b4ac29be4f518b94817d3f525380639d/src/runtime/select.go#L118-L497><code>runtime.selectgo</code></a> 函数首先会进行执行必要的初始化操作并决定处理 <code>case</code> 的两个顺序 — 轮询顺序 <code>pollOrder</code> 和加锁顺序 <code>lockOrder</code></p>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>selectgo</span>(<span style=color:#a6e22e>cas0</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>scase</span>, <span style=color:#a6e22e>order0</span> <span style=color:#f92672>*</span><span style=color:#66d9ef>uint16</span>, <span style=color:#a6e22e>ncases</span> <span style=color:#66d9ef>int</span>) (<span style=color:#66d9ef>int</span>, <span style=color:#66d9ef>bool</span>) {
 	<span style=color:#a6e22e>cas1</span> <span style=color:#f92672>:=</span> (<span style=color:#f92672>*</span>[<span style=color:#ae81ff>1</span> <span style=color:#f92672>&lt;&lt;</span> <span style=color:#ae81ff>16</span>]<span style=color:#a6e22e>scase</span>)(<span style=color:#a6e22e>unsafe</span>.<span style=color:#a6e22e>Pointer</span>(<span style=color:#a6e22e>cas0</span>))
@@ -901,7 +901,7 @@ calls into the runtime scheduler(gopark, goready)
 <li>加锁顺序：按照 Channel 的地址排序后确定加锁顺序；</li>
 </ul>
 <p>随机的轮询顺序可以避免 Channel 的饥饿问题，保证公平性；而根据 Channel 的地址顺序确定加锁顺序能够避免死锁的发生。这段代码最后调用的 runtime.sellock 函数会按照之前生成的加锁顺序锁定 <code>select</code> 语句中包含所有的 Channel。</p>
-<h4 id=主循环><a href=#主循环 class=h-anchor>#</a>主循环</h4>
+<h4 id=主循环><a href=#主循环 class=h-anchor>></a>主循环</h4>
 <p>当我们为 <code>select</code> 语句锁定了所有 Channel 之后就会进入 <a href=https://github.com/golang/go/blob/d1969015b4ac29be4f518b94817d3f525380639d/src/runtime/select.go#L118-L497><code>runtime.selectgo</code></a> 函数的主循环，它会分三个阶段查找或者等待某个 Channel 准备就绪：</p>
 <ol>
 <li>查找是否已经存在准备就绪的 Channel，即可以执行收发操作；</li>
@@ -919,7 +919,7 @@ calls into the runtime scheduler(gopark, goready)
 <p>等到 <code>select</code> 中的一些 Channel 准备就绪之后，当前 Goroutine 就会被调度器唤醒。这时会继续执行 <a href=https://github.com/golang/go/blob/d1969015b4ac29be4f518b94817d3f525380639d/src/runtime/select.go#L118-L497><code>runtime.selectgo</code></a> 函数的第三阶段，从 <a href=https://github.com/golang/go/blob/cfe3cd903f018dec3cb5997d53b1744df4e53909/src/runtime/runtime2.go#L342-L368><code>runtime.sudog</code></a> 结构体中获取数据</p>
 <p>第三次遍历全部 <code>case</code> 时，我们会先获取当前 Goroutine 接收到的参数 <code>sudog</code> 结构，我们会依次对比所有 <code>case</code> 对应的 <code>sudog</code> 结构找到被唤醒的 <code>case</code>，获取该 <code>case</code> 对应的索引并返回。</p>
 <p>由于当前的 <code>select</code> 结构找到了一个 <code>case</code> 执行，那么剩下 <code>case</code> 中没有被用到的 <code>sudog</code> 就会被忽略并且释放掉。为了不影响 Channel 的正常使用，我们还是需要将这些废弃的 <code>sudog</code> 从 Channel 中出队。</p>
-<h2 id=总结-1><a href=#总结-1 class=h-anchor>#</a>总结</h2>
+<h2 id=总结-1><a href=#总结-1 class=h-anchor>></a>总结</h2>
 <p>我们简单总结一下 <code>select</code> 结构的执行过程与实现原理，首先在编译期间，Go 语言会对 <code>select</code> 语句进行优化，它会根据 <code>select</code> 中 <code>case</code> 的不同选择不同的优化路径：</p>
 <ol>
 <li>
@@ -952,7 +952,7 @@ calls into the runtime scheduler(gopark, goready)
 <li>当调度器唤醒当前 Goroutine 时就会再次按照 <code>lockOrder</code> 遍历所有的 <code>case</code>，从中查找需要被处理的 <a href=https://github.com/golang/go/blob/cfe3cd903f018dec3cb5997d53b1744df4e53909/src/runtime/runtime2.go#L342-L368><code>runtime.sudog</code></a> 结构对应的索引；</li>
 </ol>
 <p><code>select</code> 关键字是 Go 语言特有的控制结构，它的实现原理比较复杂，需要编译器和运行时函数的通力合作</p>
-<h2 id=个人理解><a href=#个人理解 class=h-anchor>#</a>个人理解</h2>
+<h2 id=个人理解><a href=#个人理解 class=h-anchor>></a>个人理解</h2>
 <p>select语句中加入default关键字，使得select支持非阻塞收发，调用如下两个收发函数：</p>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>selectnbsend</span>(<span style=color:#a6e22e>c</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>hchan</span>, <span style=color:#a6e22e>elem</span> <span style=color:#a6e22e>unsafe</span>.<span style=color:#a6e22e>Pointer</span>) (<span style=color:#a6e22e>selected</span> <span style=color:#66d9ef>bool</span>) {
 	<span style=color:#66d9ef>return</span> <span style=color:#a6e22e>chansend</span>(<span style=color:#a6e22e>c</span>, <span style=color:#a6e22e>elem</span>, <span style=color:#66d9ef>false</span>, <span style=color:#a6e22e>getcallerpc</span>())
@@ -963,12 +963,12 @@ calls into the runtime scheduler(gopark, goready)
 	<span style=color:#66d9ef>return</span>
 }
 </code></pre></div><h1 id=相关问题>相关问题</h1>
-<h2 id=go的两种并发形式><a href=#go的两种并发形式 class=h-anchor>#</a>Go的两种并发形式</h2>
+<h2 id=go的两种并发形式><a href=#go的两种并发形式 class=h-anchor>></a>Go的两种并发形式</h2>
 <p>1、多线程共享内存</p>
 <p>其实就是Java或者C++等语言中的多线程开发</p>
 <p>2、CSP并发模型</p>
 <p>Go语言特有的</p>
-<h2 id=什么是csp><a href=#什么是csp class=h-anchor>#</a>什么是CSP？</h2>
+<h2 id=什么是csp><a href=#什么是csp class=h-anchor>></a>什么是CSP？</h2>
 <p>不要以共享内存的方式来通信，相反，要通过通信来共享内存。</p>
 <p>CSP 是 Communicating Sequential Process 的简称，中文可以叫做通信顺序进程，是一种并发编程模型，由 <a href=https://en.wikipedia.org/wiki/Tony_Hoare>Tony Hoare</a> 于 1977 年提出。简单来说，CSP 模型由并发执行的实体（线程或者进程）所组成，实体之间通过发送消息进行通信，这里发送消息时使用的就是通道，或者叫 channel。CSP 模型的关键是关注 channel，而不关注发送消息的实体。Go 语言实现了 CSP 部分理论。</p>
 <p>Go的CSP并发模型，是通过goroutine和channel来实现的。</p>
@@ -986,7 +986,7 @@ calls into the runtime scheduler(gopark, goready)
 <p>更小的栈空间允许创建大量的实例</p>
 <p>用户空间线程的调度不是由操作系统来完成的，像在java 1.3中使用的greenthread的是由JVM统一调度的(后java已经改为内核线程)，还有在ruby中的fiber(半协程) 是需要在重新中自己进行调度的，而goroutine是在golang层面提供了调度器，并且对网络IO库进行了封装，屏蔽了复杂的细节，对外提供统一的语法关键字支持，简化了并发程序编写的成本。</p>
 </blockquote>
-<h2 id=进程线程和协程的区别><a href=#进程线程和协程的区别 class=h-anchor>#</a>进程、线程和协程的区别？</h2>
+<h2 id=进程线程和协程的区别><a href=#进程线程和协程的区别 class=h-anchor>></a>进程、线程和协程的区别？</h2>
 <p>进程拥有代码和打开的文件资源、数据资源、独立的内存空间。</p>
 <p>线程从属于进程，是程序的实际执行者。一个进程至少包含一个主线程，也可以有更多的子线程。线程拥有自己的栈空间。</p>
 <p>同一进程的线程共享本进程的地址空间和资源，而进程之间的地址空间和资源是相互独立的</p>
@@ -998,7 +998,7 @@ calls into the runtime scheduler(gopark, goready)
 <p>正如一个进程可以拥有多个线程一样，一个线程也可以拥有多个协程。协程的调度完全由用户控制。协程拥有自己的寄存器上下文和栈。协程调度切换时，将寄存器上下文和栈保存到其他地方，在切回来的时候，恢复先前保存的寄存器上下文和栈，直接操作栈则基本没有内核切换的开销，可以不加锁的访问全局变量，所以上下文的切换非常快。<em><strong>协程与线程主要区别是它将不再被内核调度，而是交给了程序自己而线程是将自己交给内核调度，所以也不难理解golang中调度器的存在。</strong></em><img src=https://upload-images.jianshu.io/upload_images/1604966-1e45c5e197f5b28c.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/724/format/webp alt=img></p>
 <p>最重要的是，<strong>协程不是被操作系统内核所管理，而完全是由程序所控制（也就是在用户态执行）</strong>。</p>
 <p>这样带来的好处就是性能得到了很大的提升，不会像线程切换那样消耗资源。</p>
-<h3 id=进程与线程的区别总结><a href=#进程与线程的区别总结 class=h-anchor>#</a>进程与线程的区别总结</h3>
+<h3 id=进程与线程的区别总结><a href=#进程与线程的区别总结 class=h-anchor>></a>进程与线程的区别总结</h3>
 <p>线程具有许多传统进程所具有的特征，故又称为轻型进程(Light—Weight Process)或进程元；而把传统的进程称为重型进程(Heavy—Weight Process)，它相当于只有一个线程的任务。在引入了线程的操作系统中，通常一个进程都有若干个线程，至少包含一个线程。</p>
 <p><strong>根本区别</strong>：进程是操作系统资源分配的基本单位，而线程是处理器任务调度和执行的基本单位</p>
 <p><strong>资源开销</strong>：每个进程都有独立的代码和数据空间（程序上下文），程序之间的切换会有较大的开销；线程可以看做轻量级的进程，同一类线程共享代码和数据空间，每个线程都有自己独立的运行栈和程序计数器（PC），线程之间切换的开销小。</p>
@@ -1006,10 +1006,10 @@ calls into the runtime scheduler(gopark, goready)
 <p><strong>内存分配</strong>：同一进程的线程共享本进程的地址空间和资源，而进程之间的地址空间和资源是相互独立的</p>
 <p><strong>影响关系</strong>：一个进程崩溃后，在保护模式下不会对其他进程产生影响，但是一个线程崩溃整个进程都死掉。所以多进程要比多线程健壮。</p>
 <p><strong>执行过程</strong>：每个独立的进程有程序运行的入口、顺序执行序列和程序出口。但是线程不能独立执行，必须依存在应用程序中，由应用程序提供多个线程执行控制，两者均可并发执行</p>
-<h2 id=从一个关闭的-channel-仍然能读出数据吗><a href=#从一个关闭的-channel-仍然能读出数据吗 class=h-anchor>#</a>从一个关闭的 channel 仍然能读出数据吗？</h2>
+<h2 id=从一个关闭的-channel-仍然能读出数据吗><a href=#从一个关闭的-channel-仍然能读出数据吗 class=h-anchor>></a>从一个关闭的 channel 仍然能读出数据吗？</h2>
 <p>从一个有缓冲的 channel 里读数据，当 channel 被关闭，依然能读出有效值。只有当返回的 ok 为 false 时，读出的数据才是无效的。</p>
-<h2 id=channel的使用场景><a href=#channel的使用场景 class=h-anchor>#</a>channel的使用场景？</h2>
-<h3 id=退出信号><a href=#退出信号 class=h-anchor>#</a>退出信号</h3>
+<h2 id=channel的使用场景><a href=#channel的使用场景 class=h-anchor>></a>channel的使用场景？</h2>
+<h3 id=退出信号><a href=#退出信号 class=h-anchor>></a>退出信号</h3>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#66d9ef>go</span> <span style=color:#66d9ef>func</span> (<span style=color:#a6e22e>t</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>task</span>)<span style=color:#a6e22e>run</span>{
   <span style=color:#75715e>//任务主循环
 </span><span style=color:#75715e></span>  <span style=color:#66d9ef>for</span>{
@@ -1041,7 +1041,7 @@ calls into the runtime scheduler(gopark, goready)
 		<span style=color:#a6e22e>t</span>.<span style=color:#a6e22e>logger</span>.<span style=color:#a6e22e>Warnf</span>(<span style=color:#e6db74>&#34;loop not exit after 20 seconds&#34;</span>)
 	}
 }
-</code></pre></div><h3 id=数据传输><a href=#数据传输 class=h-anchor>#</a>数据传输</h3>
+</code></pre></div><h3 id=数据传输><a href=#数据传输 class=h-anchor>></a>数据传输</h3>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#75715e>//tracket--&gt;analyser
 </span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> (<span style=color:#a6e22e>t</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>TrackExecutor</span>) <span style=color:#a6e22e>writeResult</span>(<span style=color:#a6e22e>ctx</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>TrackContext</span>, <span style=color:#a6e22e>out</span> <span style=color:#a6e22e>motanalyser</span>.<span style=color:#a6e22e>Tracklet</span>) <span style=color:#66d9ef>bool</span> {
 	<span style=color:#a6e22e>written</span> <span style=color:#f92672>:=</span> <span style=color:#66d9ef>false</span>
@@ -1062,7 +1062,7 @@ calls into the runtime scheduler(gopark, goready)
 		}
 	}
 }
-</code></pre></div><h3 id=解耦生产方和消费方><a href=#解耦生产方和消费方 class=h-anchor>#</a>解耦生产方和消费方</h3>
+</code></pre></div><h3 id=解耦生产方和消费方><a href=#解耦生产方和消费方 class=h-anchor>></a>解耦生产方和消费方</h3>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
     <span style=color:#a6e22e>taskCh</span> <span style=color:#f92672>:=</span> make(<span style=color:#66d9ef>chan</span> <span style=color:#66d9ef>int</span>, <span style=color:#ae81ff>100</span>)
     <span style=color:#66d9ef>go</span> <span style=color:#a6e22e>worker</span>(<span style=color:#a6e22e>taskCh</span>)
@@ -1092,7 +1092,7 @@ calls into the runtime scheduler(gopark, goready)
     }
 }
 <span style=color:#75715e>//5 个工作协程在不断地从工作队列里取任务，生产方只管往 channel 发送任务即可，解耦生产方和消费方。
-</span></code></pre></div><h3 id=控制并发数><a href=#控制并发数 class=h-anchor>#</a>控制并发数</h3>
+</span></code></pre></div><h3 id=控制并发数><a href=#控制并发数 class=h-anchor>></a>控制并发数</h3>
 <p>有时需要定时执行几百个任务，例如每天定时按城市来执行一些离线计算的任务。但是并发数又不能太高，因为任务执行过程依赖第三方的一些资源，对请求的速率有限制。这时就可以通过 channel 来控制并发数。</p>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#66d9ef>var</span> <span style=color:#a6e22e>limit</span> = make(<span style=color:#66d9ef>chan</span> <span style=color:#66d9ef>int</span>, <span style=color:#ae81ff>3</span>)
 
@@ -1109,7 +1109,7 @@ calls into the runtime scheduler(gopark, goready)
 </span><span style=color:#75715e></span>}
 <span style=color:#75715e>//控制同时运行的 goroutine 数最多3个。
 </span><span style=color:#75715e>//还有一点要注意的是，如果 w() 发生 panic，那“许可证”可能就还不回去了，因此需要使用 defer 来保证。
-</span></code></pre></div><h2 id=如何优雅的关闭channel><a href=#如何优雅的关闭channel class=h-anchor>#</a>如何优雅的关闭channel？</h2>
+</span></code></pre></div><h2 id=如何优雅的关闭channel><a href=#如何优雅的关闭channel class=h-anchor>></a>如何优雅的关闭channel？</h2>
 <blockquote>
 <p>don&rsquo;t close a channel from the receiver side and don&rsquo;t close a channel if the channel has multiple concurrent senders.</p>
 <p>don&rsquo;t close (or send values to) closed channels.</p>
@@ -1257,16 +1257,16 @@ calls into the runtime scheduler(gopark, goready)
                 }
 <span style=color:#f92672>...</span>
 <span style=color:#75715e>//直接向 toStop 发送请求，因为 toStop 容量足够大，所以不用担心阻塞，自然也就不用 select 语句再加一个 default case 来避免阻塞。
-</span></code></pre></div><h2 id=channel-在什么情况下会引起资源泄漏><a href=#channel-在什么情况下会引起资源泄漏 class=h-anchor>#</a>channel 在什么情况下会引起资源泄漏？</h2>
+</span></code></pre></div><h2 id=channel-在什么情况下会引起资源泄漏><a href=#channel-在什么情况下会引起资源泄漏 class=h-anchor>></a>channel 在什么情况下会引起资源泄漏？</h2>
 <p>泄漏的原因是 goroutine 操作 channel 后，处于发送或接收阻塞状态，而 channel 处于满或空的状态，一直得不到改变。同时，垃圾回收器也不会回收此类资源，进而导致 gouroutine 会一直处于等待队列中，不见天日。</p>
 <p>另外，程序运行过程中，对于一个 channel，如果没有任何 goroutine 引用了，gc 会对其进行回收操作，不会引起内存泄漏。</p>
-<h2 id=channel-发送和接收元素的本质是什么><a href=#channel-发送和接收元素的本质是什么 class=h-anchor>#</a>channel 发送和接收元素的本质是什么？</h2>
+<h2 id=channel-发送和接收元素的本质是什么><a href=#channel-发送和接收元素的本质是什么 class=h-anchor>></a>channel 发送和接收元素的本质是什么？</h2>
 <p>Channel 发送和接收元素的本质是什么？</p>
 <blockquote>
 <p>All transfer of value on the go channels happens with the copy of value.</p>
 </blockquote>
 <p>就是说 channel 的发送和接收操作本质上都是 “值的拷贝”，无论是从 sender goroutine 的栈到 chan buf，还是从 chan buf 到 receiver goroutine，或者是直接从 sender goroutine 到 receiver goroutine</p>
-<h2 id=操作channel的情况><a href=#操作channel的情况 class=h-anchor>#</a>操作channel的情况</h2>
+<h2 id=操作channel的情况><a href=#操作channel的情况 class=h-anchor>></a>操作channel的情况</h2>
 <p>总结一下操作 channel 的结果：</p>
 <table>
 <thead>
@@ -1300,7 +1300,7 @@ calls into the runtime scheduler(gopark, goready)
 </table>
 <p>总结一下，发生 panic 的情况有三种：向一个关闭的 channel 进行写操作；关闭一个 nil 的 channel；重复关闭一个 channel。</p>
 <p>读、写一个 nil channel 都会被阻塞。<strong>如果为非阻塞收发，即收发操作为select的一个case（且存在default分支），不会被阻塞，直接返回。</strong></p>
-<h2 id=关于-channel-的-happened-before-有哪些><a href=#关于-channel-的-happened-before-有哪些 class=h-anchor>#</a>关于 channel 的 happened-before 有哪些?</h2>
+<h2 id=关于-channel-的-happened-before-有哪些><a href=#关于-channel-的-happened-before-有哪些 class=h-anchor>></a>关于 channel 的 happened-before 有哪些?</h2>
 <p>关于 channel 的发送（send）、发送完成（send finished）、接收（receive）、接收完成（receive finished）的 happened-before 关系如下：</p>
 <ol>
 <li>第 n 个 <code>send</code> 一定 <code>happened before</code> 第 n 个 <code>receive finished</code>，无论是缓冲型还是非缓冲型的 channel。</li>
