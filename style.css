@@ -1,12 +1,14 @@
+/*字体&行高*/
 body {
     font-size: 1.2rem;
     font-weight: 400;
     line-height: 1.54;
 }
+/*图片圆角*/
 img {
     border-radius: 10px;
 }
-
+/*增加行宽*/
 .post{
     max-width: 900px;
     margin: auto;
