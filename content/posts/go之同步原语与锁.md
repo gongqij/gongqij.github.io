@@ -1,6 +1,6 @@
 ---
 title: "go之同步原语"
-date: 2021-11-29T11:14:03+08:00
+date: 2022-06-26T21:35:03+08:00
 draft: false
 author: "gq"
 ---
@@ -8,6 +8,60 @@ author: "gq"
 # 同步原语与锁
 
 ## Mutex
+
+### 互斥锁的演变史
+
+![](https://s2.loli.net/2022/06/10/IgzVObeT4rif6qc.png)
+
+![](https://s2.loli.net/2022/06/13/j5gEfVOwHranRyF.png)
+
+#### 初版
+
+```go
+    // CAS操作，当时还没有抽象出atomic包
+    func cas(val *int32, old, new int32) bool
+    func semacquire(*int32)
+    func semrelease(*int32)
+    // 互斥锁的结构，包含两个字段
+    type Mutex struct {
+        key  int32 // 锁是否被持有的标识
+        sema int32 // 信号量专用，用以阻塞/唤醒goroutine
+    }
+    
+    // 保证成功在val上增加delta的值
+    func xadd(val *int32, delta int32) (new int32) {
+        for {
+            v := *val
+            if cas(val, v, v+delta) {
+                return v + delta
+            }
+        }
+        panic("unreached")
+    }
+    
+    // 请求锁
+    func (m *Mutex) Lock() {
+        if xadd(&m.key, 1) == 1 { //标识加1，如果等于1，成功获取到锁
+            return
+        }
+        semacquire(&m.sema) // 否则阻塞等待
+    }
+    
+    func (m *Mutex) Unlock() {
+        if xadd(&m.key, -1) == 0 { // 将标识减去1，如果等于0，则没有其它等待者
+            return
+        }
+        semrelease(&m.sema) // 唤醒其它阻塞的goroutine
+    }
+```
+
+存在的问题：
+
+如果我们能够把锁交给正在占用 CPU 时间片的 goroutine 的话，那就不需要做上下文的切换，在高并发的情况下，可能会有更好的性能
+
+#### 给新人机会
+
+
 
 ### 数据结构
 
@@ -18,7 +72,9 @@ type Mutex struct {
 }
 ```
 
-### 互斥锁的状态
+Mutex 的零值是还没有 goroutine 等待的未加锁的状态，所以你不需要额外的初始化，直接声明变量（如 var mu sync.Mutex）即可
+
+### 互斥锁的state
 
 互斥锁的状态比较复杂，如下图所示，最低三位分别表示 `mutexLocked`、`mutexWoken` 和 `mutexStarving`，剩下的位置用来表示当前有多少个 Goroutine 等待互斥锁的释放：
 
@@ -32,17 +88,13 @@ type Mutex struct {
 - `mutexWoken` — 表示从正常模式被从唤醒；
 - `mutexStarving` — 当前的互斥锁进入饥饿状态；
 
-### 互斥锁的正常模式和饥饿模式
+### 互斥锁的两种模式
 
-[`sync.Mutex`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/mutex.go#L25-L28) 有两种模式 — 正常模式和饥饿模式。我们需要在这里先了解正常模式和饥饿模式都是什么，它们有什么样的关系。
+#### 正常模式
 
-在正常模式下，锁的等待者会按照先进先出的顺序获取锁。但是刚被唤起的 Goroutine 与新创建的 Goroutine 竞争时，大概率会获取不到锁，为了减少这种情况的出现，一旦 Goroutine 超过 1ms 没有获取到锁，它就会将当前互斥锁切换饥饿模式，防止部分 Goroutine 被『饿死』。
+在正常模式下，锁的waiters Goroutine会按照**先进先出**的顺序获取锁。但是刚被唤起的 Goroutine 与新创建的 Goroutine 竞争时，大概率会获取不到锁（因为新创建的Goroutine正在占用 CPU 时间片），为了减少这种情况的出现，一旦 Goroutine 超过 1ms 没有获取到锁，它就会将当前互斥锁切换饥饿模式，防止部分 Goroutine 被饿死。
 
-![golang-mutex-mode](https://img.draveness.me/2020-01-23-15797104328020-golang-mutex-mode.png)
-
-**图 6-7 互斥锁的正常模式与饥饿模式**
-
-饥饿模式是在 Go 语言 [1.9](https://github.com/golang/go/commit/0556e26273f704db73df9e7c4c3d2e8434dec7be) 版本引入的优化[1](https://draveness.me/golang/docs/part3-runtime/ch06-concurrency/golang-sync-primitives/#fn:1)，引入的目的是保证互斥锁的公平性（Fairness）。
+#### 饥饿模式
 
 在饥饿模式中，互斥锁会直接交给等待队列最前面的 Goroutine。新的 Goroutine 在该状态下不能获取锁、也不会进入自旋状态，它们只会在队列的末尾等待。如果一个 Goroutine 获得了互斥锁并且它在队列的末尾或者它等待的时间少于 1ms，那么当前的互斥锁就会被切换回正常模式。
 
@@ -171,103 +223,93 @@ Improves the performance of spin-wait loops. When executing a “spin-wait loop,
 - 当互斥锁处于饥饿模式时，会直接将锁的所有权交给队列中的下一个等待者，等待者会负责设置 `mutexLocked` 标志位；
 - 当互斥锁处于普通模式时，如果没有 Goroutine 等待锁的释放或者已经有被唤醒的 Goroutine 获得了锁，就会直接返回；在其他情况下会通过 [`sync.runtime_Semrelease`](https://github.com/golang/go/blob/a4c579e8f7c8129b2c27779f206ebd2c9b393633/src/runtime/sema.go#L65-L67) 唤醒对应的 Goroutine；
 
+Unlock 方法可以被任意的 goroutine 调用释放锁，即使是没持有这个互斥锁的 goroutine，也可以进行这个操作。这是因为，Mutex 本身并没有包含持有这把锁的 goroutine 的信息，所以，Unlock 也不会对此进行检查。Mutex 的这个设计一直保持至今。
+
+### 错误场景
+
+Lock/Unlock 没有成对出现，就意味着会出现死锁的情况，或者是因为 Unlock 一个未加锁的 Mutex 而导致 panic。
+
+Mutex 不是可重入的锁。
+
 ## RWMutex
+
+![](https://s2.loli.net/2022/06/13/4sOd6nGlhQT1ZX5.png)
 
 ### 数据结构
 
 ```go
 type RWMutex struct {
-	w           Mutex
-	writerSem   uint32
-	readerSem   uint32
-	readerCount int32
-	readerWait  int32
+	w           Mutex //为 writer 的竞争锁而设计；
+	writerSem   uint32 //都是为了阻塞设计的信号量。
+	readerSem   uint32 //都是为了阻塞设计的信号量。
+	readerCount int32 //记录当前 reader 的数量（以及是否有 writer 竞争锁）；
+	readerWait  int32 //记录 writer 请求锁时需要等待 read 完成的 reader 的数量；
 }
-//w — 复用互斥锁提供的能力；
-//writerSem 和 readerSem — 分别用于写等待读和读等待写：
-//readerCount 存储了当前正在执行的读操作的数量；
-//readerWait 表示当写操作被阻塞时等待的读操作个数；
 ```
 
-### 写锁
-
-### 读锁
-
-读锁的加锁方法 [`sync.RWMutex.RLock`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/rwmutex.go#L43-L56) 很简单，该方法会通过 [`atomic.AddInt32`](https://github.com/golang/go/blob/ca7c12d4c9eb4a19ca5103ec5763537cccbcc13b/src/sync/atomic/doc.go#L93) 将 `readerCount` 加一：
+### Rlock
 
 ```go
 func (rw *RWMutex) RLock() {
 	if atomic.AddInt32(&rw.readerCount, 1) < 0 {
+    // rw.readerCount是负值的时候，意味着此时有writer等待请求锁，因为writer优先级高，所以把后来的reader阻塞休眠
 		runtime_SemacquireMutex(&rw.readerSem, false, 0)
 	}
 }
 ```
 
-1. 如果该方法返回负数 — 其他 Goroutine 获得了写锁，当前 Goroutine 就会调用 [`sync.runtime_SemacquireMutex`](https://github.com/golang/go/blob/a4c579e8f7c8129b2c27779f206ebd2c9b393633/src/runtime/sema.go#L70-L72) 陷入休眠等待锁的释放；
-2. 如果该方法的结果为非负数 — 没有 Goroutine 获得写锁，当前方法就会成功返回；
-
-当 Goroutine 想要释放读锁时，会调用如下所示的 [`sync.RWMutex.RUnlock`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/rwmutex.go#L62-L75) 方法：
+### RUnlock
 
 ```go
 func (rw *RWMutex) RUnlock() {
 	if r := atomic.AddInt32(&rw.readerCount, -1); r < 0 {
+    // 有等待的writer
 		rw.rUnlockSlow(r)
 	}
 }
+func (rw *RWMutex) rUnlockSlow(r int32) {
+  if atomic.AddInt32(&rw.readerWait, -1) == 0 { 
+    // 最后一个reader了，writer终于有机会获得锁了
+    runtime_Semrelease(&rw.writerSem, false, 1) 
+  }
+}
 ```
 
-该方法会先减少正在读资源的 `readerCount` 整数，根据 [`atomic.AddInt32`](https://github.com/golang/go/blob/ca7c12d4c9eb4a19ca5103ec5763537cccbcc13b/src/sync/atomic/doc.go#L93) 的返回值不同会分别进行处理：
-
-- 如果返回值大于等于零 — 读锁直接解锁成功；
-- 如果返回值小于零 — 有一个正在执行的写操作，在这时会调用[`sync.RWMutex.rUnlockSlow`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/rwmutex.go#L77-L87) 方法；
+### Lock
 
 ```go
-func (rw *RWMutex) rUnlockSlow(r int32) {
-	if r+1 == 0 || r+1 == -rwmutexMaxReaders {
-		throw("sync: RUnlock of unlocked RWMutex")
-	}
-	if atomic.AddInt32(&rw.readerWait, -1) == 0 {
-		runtime_Semrelease(&rw.writerSem, false, 1)
+func (rw *RWMutex) Lock() {
+	// 首先解决其他writer竞争问题
+	rw.w.Lock()
+	// 反转readerCount，告诉reader有writer竞争锁
+	r := atomic.AddInt32(&rw.readerCount, -rwmutexMaxReaders) + rwmutexMaxReaders
+	if r != 0 && atomic.AddInt32(&rw.readerWait, r) != 0 {
+    // 如果当前有reader持有锁，那么需要等待
+		runtime_SemacquireMutex(&rw.writerSem, false, 0)
 	}
 }
 ```
 
-[`sync.RWMutex.rUnlockSlow`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/rwmutex.go#L77-L87) 会减少获取锁的写操作等待的读操作数 `readerWait` 并在所有读操作都被释放之后触发写操作的信号量 `writerSem`，该信号量被触发时，调度器就会唤醒尝试获取写锁的 Goroutine。
+### Unlock
 
-
-
-读写互斥锁 [`sync.RWMutex`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/rwmutex.go#L28-L34) 虽然提供的功能非常复杂，不过因为它建立在 [`sync.Mutex`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/mutex.go#L25-L28) 上，所以整体的实现上会简单很多。我们总结一下读锁和写锁的关系：
-
-- 调用`sync.RWMutex.Lock`尝试获取写锁时；
-  - 每次 [`sync.RWMutex.RUnlock`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/rwmutex.go#L62-L75) 都会将 `readerCount` 其减一，当它归零时该 Goroutine 就会获得写锁；
-  - 将 `readerCount` 减少 `rwmutexMaxReaders` 个数以阻塞后续的读操作；
-- 调用 [`sync.RWMutex.Unlock`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/rwmutex.go#L118-L140) 释放写锁时，会先通知所有的读操作，然后才会释放持有的互斥锁；
-
-读写互斥锁在互斥锁之上提供了额外的更细粒度的控制，能够在读操作远远多于写操作时提升性能。
+```go
+func (rw *RWMutex) Unlock() {
+	// 告诉reader没有活跃的writer了
+	r := atomic.AddInt32(&rw.readerCount, rwmutexMaxReaders)
+	if r >= rwmutexMaxReaders {
+		throw("sync: Unlock of unlocked RWMutex")
+	}
+	for i := 0; i < int(r); i++ {
+    // 唤醒阻塞的reader们
+		runtime_Semrelease(&rw.readerSem, false, 0)
+	}
+  	rw.w.Unlock()
+}
+```
 
 ## WaitGroup
 
-[`sync.WaitGroup`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/waitgroup.go#L20-L29) 可以等待一组 Goroutine 的返回，一个比较常见的使用场景是批量发出 RPC 或者 HTTP 请求：
-
-```go
-requests := []*Request{...}
-wg := &sync.WaitGroup{}
-wg.Add(len(requests))
-
-for _, request := range requests {
-    go func(r *Request) {
-        defer wg.Done()
-        // res, err := service.call(r)
-    }(request)
-}
-wg.Wait()
-```
-
-我们可以通过 [`sync.WaitGroup`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/waitgroup.go#L20-L29) 将原本顺序执行的代码在多个 Goroutine 中并发执行，加快程序处理的速度。
-
-![golang-syncgroup](https://img.draveness.me/2020-01-23-15797104328028-golang-syncgroup.png)
-
-**图 6-8 WaitGroup 等待多个 Goroutine**
+![](https://s2.loli.net/2022/06/13/PN2UGsImtBD5Vwe.png)
 
 ### 数据结构
 
@@ -278,31 +320,163 @@ type WaitGroup struct {
 }
 ```
 
-### 小结
+```go
 
-- [`sync.WaitGroup`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/waitgroup.go#L20-L29) 必须在 [`sync.WaitGroup.Wait`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/waitgroup.go#L103-L141) 方法返回之后才能被重新使用；
-- [`sync.WaitGroup.Done`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/waitgroup.go#L98-L100) 只是对 [`sync.WaitGroup.Add`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/waitgroup.go#L53-L95) 方法的简单封装，我们可以向 [`sync.WaitGroup.Add`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/waitgroup.go#L53-L95) 方法传入任意负数（需要保证计数器非负）快速将计数器归零以唤醒其他等待的 Goroutine；
-- 可以同时有多个 Goroutine 等待当前 [`sync.WaitGroup`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/waitgroup.go#L20-L29) 计数器的归零，这些 Goroutine 会被同时唤醒；
+type WaitGroup struct {
+    // 避免复制使用的一个技巧，可以告诉vet工具违反了复制使用的规则
+    noCopy noCopy
+    // 64bit(8bytes)的值分成两段，高32bit是计数值，低32bit是waiter的计数
+    // 另外32bit是用作信号量的
+    // 因为64bit值的原子操作需要64bit对齐，但是32bit编译器不支持，所以数组中的元素在不同的架构中不一样，具体处理看下面的方法
+    // 总之，会找到对齐的那64bit作为state，其余的32bit做信号量
+    state1 [3]uint32
+}
 
-## Once
 
-Go 语言标准库中 [`sync.Once`](https://github.com/golang/go/blob/bc593eac2dc63d979a575eccb16c7369a5ff81e0/src/sync/once.go#L12-L20) 可以保证在 Go 程序运行期间的某段代码只会执行一次。在运行如下所示的代码时，我们会看到如下所示的运行结果：
+// 得到state的地址和信号量的地址
+func (wg *WaitGroup) state() (statep *uint64, semap *uint32) {
+    if uintptr(unsafe.Pointer(&wg.state1))%8 == 0 {
+        // 如果地址是64bit对齐的，数组前两个元素做state，后一个元素做信号量
+        return (*uint64)(unsafe.Pointer(&wg.state1)), &wg.state1[2]
+    } else {
+        // 如果地址是32bit对齐的，数组后两个元素用来做state，它可以用来做64bit的原子操作，第一个元素32bit用来做信号量
+       //&wg.state1[0]是32位对齐的，&wg.state1[0]+4也就是&wg.state1[1]是64位对齐的
+        return (*uint64)(unsafe.Pointer(&wg.state1[1])), &wg.state1[0]
+    }
+}
+```
+
+如果wg初始地址64位对齐：
+
+![](https://s2.loli.net/2022/06/09/5CAo8u9pMBOvJds.png)
+
+如果wg初始地址32位对齐：
+
+![](https://s2.loli.net/2022/06/09/HTbLiXlNjG3cgfY.png)
+
+### Add
+
+Add 方法主要操作的是 state 的计数部分。你可以为计数值增加一个 delta 值，内部通过原子操作把这个值加到计数值上。需要注意的是，这个 delta 也可以是个负数，相当于为计数值减去一个值，Done 方法内部其实就是通过 Add(-1) 实现的。
 
 ```go
-func main() {
-    o := &sync.Once{}
-    for i := 0; i < 10; i++ {
-        o.Do(func() {
-            fmt.Println("only once")
-        })
+func (wg *WaitGroup) Add(delta int) {
+    statep, semap := wg.state()
+    // 高32bit是计数值v，所以把delta左移32，增加到计数上
+    state := atomic.AddUint64(statep, uint64(delta)<<32)
+    v := int32(state >> 32) // 当前计数值
+    w := uint32(state) // waiter count
+
+  	if v < 0 {
+		   panic("sync: negative WaitGroup counter")
+	  }
+    if v > 0 || w == 0 {
+        return
+    }
+    // 执行到这里v = 0 && w >0。v = 0说明所有goroutine都完成了，w > 0说明有等待被唤醒的goroutine
+    if *statep != state {
+       //此刻别再调Add增加counter或者调Wait增加waiter了，防止滥用wg
+		   panic("sync: WaitGroup misuse: Add called concurrently with Wait")
+	  }
+    *statep = 0 // 将waiter的数量设置为0，因为计数值v也是0,所以它们俩的组合*statep直接设置为0即可
+    for ; w != 0; w-- { //唤醒所有的waiter
+        runtime_Semrelease(semap, false, 0)
     }
 }
 
-$ go run main.go
-only once
+// Done方法实际就是计数器减1
+func (wg *WaitGroup) Done() {
+    wg.Add(-1)
+}
 ```
 
-### 结构体
+### wait
+
+Wait 方法的实现逻辑是：不断检查 state 的值。如果其中的计数值变为了 0，那么说明所有的任务已完成，调用者不必再等待，直接返回。如果计数值大于 0，说明此时还有任务没完成，那么调用者就变成了等待者，需要加入 waiter 队列，并且阻塞住自己。
+
+```go
+func (wg *WaitGroup) Wait() {
+    statep, semap := wg.state()
+    
+    for {
+        state := atomic.LoadUint64(statep)
+        v := int32(state >> 32) // 当前计数值
+        w := uint32(state) // waiter的数量
+        if v == 0 {
+            // 如果计数值为0, 调用这个方法的goroutine不必再等待，继续执行它后面的逻辑即可
+            return
+        }
+        // 否则把waiter数量加1。期间可能有并发调用Wait的情况，所以最外层使用了一个for循环
+        if atomic.CompareAndSwapUint64(statep, state, state+1) {
+            // 阻塞休眠等待
+            runtime_Semacquire(semap)
+          	if *statep != 0 {
+               //这轮wait还没完成，就开始重用wg。例如调用Wait后，接着又调用了Add
+				       panic("sync: WaitGroup is reused before previous Wait has returned")
+			      }
+            // 被唤醒，不再阻塞，返回
+            return
+        }
+    }
+}
+```
+
+### 信号量
+
+P操作:
+
+```go
+runtime_Semacquire(semap)
+//semap为state中的信号量。该方法阻塞等待直到semap>0，然后执行semap-1
+```
+
+V操作:
+
+```go
+runtime_Semrelease(semap, false, 0)
+//semap为state中的信号量。该方法执行semap+1
+```
+
+### 小结
+
+- 可以同时有多个 Goroutine 等待当前 [`sync.WaitGroup`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/waitgroup.go#L20-L29) 计数器的归零，这些 Goroutine 会被同时唤醒；
+
+- 可以wg.Add负数，但是需保证不能使计数器变成负数，否则就会导致 panic
+
+- 等所有的 Add 方法调用之后再调用 Wait，否则就可能导致 panic 或者不期望的结果。
+
+- WaitGroup 虽然可以重用，但是是有一个前提的，那就是必须等到上一轮的 Wait 完成之后，才能重用 WaitGroup 执行下一轮的 Add/Wait，如果你在 Wait 还没执行完的时候就调用下一轮 Add 方法，就有可能出现 panic。
+
+  ```go
+  func main() {
+      var wg sync.WaitGroup
+      wg.Add(1)
+      go func() {
+          time.Sleep(time.Millisecond)
+          wg.Done() // 计数器减1
+          wg.Add(1) // 计数值加1（第七行）
+      }()
+      wg.Wait() // 主goroutine等待，有可能和第7行并发执行
+  }
+  //panic: sync: WaitGroup is reused before previous Wait has returned
+  ```
+
+### 使用wg的建议
+
+不重用 WaitGroup。新建一个 WaitGroup 不会带来多大的资源开销，重用反而更容易出错。
+
+保证所有的 Add 方法调用都在 Wait 之前。
+
+不传递负数给 Add 方法，只通过 Done 来给计数值减 1。
+
+不做多余的 Done 方法调用，保证 Add 的计数值和 Done 方法调用的数量是一样的。
+
+不遗漏 Done 方法的调用，否则会导致 Wait hang 住无法返回。
+
+## Once
+
+Once 常常用来初始化单例资源，或者并发访问只需初始化一次的共享资源，或者在测试的时候初始化一次测试资源。
+
+### 数据结构
 
 每一个 [`sync.Once`](https://github.com/golang/go/blob/bc593eac2dc63d979a575eccb16c7369a5ff81e0/src/sync/once.go#L12-L20) 结构体中都只包含一个用于标识代码块是否执行过的 `done` 以及一个互斥锁 [`sync.Mutex`](https://github.com/golang/go/blob/71239b4f491698397149868c88d2c851de2cd49b/src/sync/mutex.go#L25-L28)：
 
@@ -313,24 +487,26 @@ type Once struct {
 }
 ```
 
-### 接口
+### 实现
 
 [`sync.Once.Do`](https://github.com/golang/go/blob/bc593eac2dc63d979a575eccb16c7369a5ff81e0/src/sync/once.go#L40-L59) 是 [`sync.Once`](https://github.com/golang/go/blob/bc593eac2dc63d979a575eccb16c7369a5ff81e0/src/sync/once.go#L12-L20) 结构体对外唯一暴露的方法，该方法会接收一个入参为空的函数：
 
 - 如果传入的函数已经执行过，就会直接返回；
 - 如果传入的函数没有执行过，就会调用 [`sync.Once.doSlow`](https://github.com/golang/go/blob/bc593eac2dc63d979a575eccb16c7369a5ff81e0/src/sync/once.go#L61-L68) 执行传入的函数：
 
+**双检查的机制（double-checking）**
+
 ```go
 func (o *Once) Do(f func()) {
-	if atomic.LoadUint32(&o.done) == 0 {
-		o.doSlow(f)
+	if atomic.LoadUint32(&o.done) == 0 { //第一次检查，f已经调用过之后的检查
+		o.doSlow(f) //f没被调用过，多个Goroutine可能争夺调用权
 	}
 }
 
 func (o *Once) doSlow(f func()) {
 	o.m.Lock()
 	defer o.m.Unlock()
-	if o.done == 0 {
+  if o.done == 0 {
 		defer atomic.StoreUint32(&o.done, 1)
 		f()
 	}
@@ -343,229 +519,615 @@ func (o *Once) doSlow(f func()) {
 
 [`sync.Once`](https://github.com/golang/go/blob/bc593eac2dc63d979a575eccb16c7369a5ff81e0/src/sync/once.go#L12-L20) 就会通过成员变量 `done` 确保函数不会执行第二次。
 
-### 小结
+### 错误案例
 
-作为用于保证函数执行次数的 [`sync.Once`](https://github.com/golang/go/blob/bc593eac2dc63d979a575eccb16c7369a5ff81e0/src/sync/once.go#L12-L20) 结构体，它使用互斥锁和 [`sync/atomic`](https://github.com/golang/go/tree/master/src/sync/atomic) 包提供的方法实现了某个函数在程序运行期间只能执行一次的语义。在使用该结构体时，我们也需要注意以下的问题：
+#### 第一种错误：死锁
 
-- [`sync.Once.Do`](https://github.com/golang/go/blob/bc593eac2dc63d979a575eccb16c7369a5ff81e0/src/sync/once.go#L40-L59) 方法中传入的函数只会被执行一次，哪怕函数中发生了 `panic`；
-- 两次调用 [`sync.Once.Do`](https://github.com/golang/go/blob/bc593eac2dc63d979a575eccb16c7369a5ff81e0/src/sync/once.go#L40-L59) 方法传入不同的函数也只会执行第一次调用的函数；
+```go
+func main() {
+    var once sync.Once
+    once.Do(func() {
+        once.Do(func() {
+            fmt.Println("初始化")
+        })
+    })
+}
+```
+
+#### 第二种错误：未初始化
+
+如果 f 方法执行的时候 panic，或者 f 执行初始化资源的时候失败了，这个时候，Once 还是会认为初次执行已经成功了，即使再次调用 Do 方法，也不会再次执行 f。
+
+### 功能更加强大的Once
+
+```go
+// 一个功能更加强大的Once
+type Once struct {
+    m    sync.Mutex
+    done uint32
+}
+// 传入的函数f有返回值error，如果初始化失败，需要返回失败的error
+// Do方法会把这个error返回给调用者
+func (o *Once) Do(f func() error) error {
+    if atomic.LoadUint32(&o.done) == 1 { //fast path
+        return nil
+    }
+    return o.slowDo(f)
+}
+// 如果还没有初始化
+func (o *Once) slowDo(f func() error) error {
+    o.m.Lock()
+    defer o.m.Unlock()
+    var err error
+    if o.done == 0 { // 双检查，还没有初始化
+        err = f()
+        if err == nil { // 初始化成功才将标记置为已初始化
+            atomic.StoreUint32(&o.done, 1)
+        }
+    }
+    return err
+}
+```
+
+### 问题
+
+我已经分析了几个并发原语的实现，你可能注意到总是有些 slowXXXX 的方法，从 XXXX 方法中单独抽取出来，你明白为什么要这么做吗，有什么好处？
+
+> 分离固定内容和非固定内容，使得固定的内容能被内联调用，从而优化执行过程。
+>
+>  fast path的一个好处是此方法可以内联
+
+### 内联是什么？
+
+
 
 ## Cond
 
-Go 语言标准库中的 [`sync.Cond`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L21-L29) 一个条件变量，它可以让一系列的 Goroutine 都在满足特定条件时被唤醒。每一个 [`sync.Cond`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L21-L29) 结构体在初始化时都需要传入一个互斥锁，我们可以通过下面的例子了解它的使用方法：
+### 易错点
+
+#### 调用 Wait 的时候不加锁
 
 ```go
-var status int64
-
-func main() {
-	c := sync.NewCond(&sync.Mutex{})
-	for i := 0; i < 10; i++ {
-		go listen(c)
-	}
-	time.Sleep(1 * time.Second)
-	go broadcast(c)
-
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, os.Interrupt)
-	<-ch
-}
-
-func broadcast(c *sync.Cond) {
-	c.L.Lock()
-	atomic.StoreInt64(&status, 1)
-	c.Broadcast()
-	c.L.Unlock()
-}
-
-func listen(c *sync.Cond) {
-	c.L.Lock()
-	for atomic.LoadInt64(&status) != 1 {
-		c.Wait()
-	}
-	fmt.Println("listen")
-	c.L.Unlock()
-}
-
-$ go run main.go
-listen
-...
-listen
-```
-
-上述代码同时运行了 11 个 Goroutine，这 11 个 Goroutine 分别做了不同事情：
-
-- 10 个 Goroutine 通过 [`sync.Cond.Wait`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L52-L58) 等待特定条件的满足；
-- 1 个 Goroutine 会调用 [`sync.Cond.Broadcast`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L73-L76) 方法通知所有陷入等待的 Goroutine；
-
-调用 [`sync.Cond.Broadcast`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L73-L76) 方法后，上述代码会打印出 10 次 “listen” 并结束调用。
-
-![golang-cond-broadcast](https://img.draveness.me/2020-01-23-15797104328042-golang-cond-broadcast.png)
-
-**图 6-10 Cond 条件广播**
-
-### 结构体
-
-[`sync.Cond`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L21-L29) 的结构体中包含以下 4 个字段：
-
-```go
-type Cond struct {
-	noCopy  noCopy
-	L       Locker
-	notify  notifyList
-	checker copyChecker
-}
-```
-
-- `noCopy` — 用于保证结构体不会在编译期间拷贝；
-- `copyChecker` — 用于禁止运行期间发生的拷贝；
-- `L` — 用于保护内部的 `notify` 字段，`Locker` 接口类型的变量；
-- `notify` — 一个 Goroutine 的链表，它是实现同步机制的核心结构；
-
-```go
-type notifyList struct {
-	wait uint32
-	notify uint32
-
-	lock mutex
-	head *sudog
-	tail *sudog
-}
-```
-
-在 [`sync.notifyList`](https://github.com/golang/go/blob/41cb0aedffdf4c5087de82710c4d016a3634b4ac/src/sync/runtime.go#L33-L39) 结构体中，`head` 和 `tail` 分别指向的链表的头和尾，`wait` 和 `notify` 分别表示当前正在等待的和已经通知到的 Goroutine，我们通过这两个变量就能确认当前待通知和已通知的 Goroutine。
-
-### 接口
-
-[`sync.Cond`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L21-L29) 对外暴露的 [`sync.Cond.Wait`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L52-L58) 方法会将当前 Goroutine 陷入休眠状态，它的执行过程分成以下两个步骤：
-
-1. 调用 [`runtime.notifyListAdd`](https://github.com/golang/go/blob/a4c579e8f7c8129b2c27779f206ebd2c9b393633/src/runtime/sema.go#L479-L483) 将等待计数器加一并解锁；
-2. 调用 [`runtime.notifyListWait`](https://github.com/golang/go/blob/a4c579e8f7c8129b2c27779f206ebd2c9b393633/src/runtime/sema.go#L488-L518) 等待其他 Goroutine 的唤醒并加锁：
-
-```go
+//    c.L.Lock()
+//    for !condition() {
+//        c.Wait()
+//    }
+//    ... make use of condition ...
+//    c.L.Unlock()
+//
 func (c *Cond) Wait() {
 	c.checker.check()
-	t := runtime_notifyListAdd(&c.notify) // runtime.notifyListAdd 的链接名
+	t := runtime_notifyListAdd(&c.notify)
 	c.L.Unlock()
-	runtime_notifyListWait(&c.notify, t) // runtime.notifyListWait 的链接名
+	runtime_notifyListWait(&c.notify, t)
 	c.L.Lock()
 }
+```
 
-func notifyListAdd(l *notifyList) uint32 {
-	return atomic.Xadd(&l.wait, 1) - 1
+如果调用 Wait 之前不加锁的话，就有可能 Unlock 一个未加锁的 Locker。所以切记，调用 cond.Wait 方法之前一定要加锁。
+
+#### 只调用了一次 Wait，没有检查等待条件是否满足
+
+我们一定要记住，waiter goroutine 被唤醒不等于等待条件被满足，只是有 goroutine 把它唤醒了而已，等待条件有可能已经满足了，也有可能不满足，我们需要进一步检查。你也可以理解为，等待者被唤醒，只是得到了一次检查的机会而已。
+
+### cond与channel
+
+- Cond 和一个 Locker 关联，可以利用这个 Locker 对相关的依赖条件更改提供保护。
+- Cond 可以同时支持 Signal 和 Broadcast 方法，而 Channel 只能同时支持其中一种。
+- Cond 的 Broadcast 方法可以被重复调用。等待条件再次变成不满足的状态后，我们又可以调用 Broadcast 再次唤醒等待的 goroutine。这也是 Channel 不能支持的，Channel 被 close 掉了之后不支持再 open。
+
+## Pool
+
+### sync.Pool
+
+- sync.Pool 本身就是线程安全的，多个 goroutine 可以并发地调用它的方法存取对象；
+
+- sync.Pool 不可在使用之后再复制使用。
+
+![](https://s2.loli.net/2022/06/07/wM5nzdbcSK4FrpO.png)
+
+#### 数据结构
+
+```go
+type Pool struct {
+	noCopy noCopy
+
+	local     unsafe.Pointer // local fixed-size per-P pool, actual type is [P]poolLocal
+  //存放poolLocal
+  
+	localSize uintptr        // size of the local array ，localSize == runtime.GOMAXPROCS(0)
+
+	victim     unsafe.Pointer // local from previous cycle
+	victimSize uintptr        // size of victims array
+
+	// New optionally specifies a function to generate
+	// a value when Get would otherwise return nil.
+	// It may not be changed concurrently with calls to Get.
+	New func() any
+}
+
+	// Local per-P Pool appendix.
+type poolLocalInternal struct {
+	private any       // Can be used only by the respective P.private，代表一个缓存的元素，而且只能由相应的一个 P 存取。因为一个 P 同时只能执行一个 goroutine，所以不会有并发的问题。
+	shared  poolChain // Local P can pushHead/popHead; any P can popTail.shared，可以由任意的 P 访问，但是只有本地的 P 才能 pushHead/popHead，其它 P 可以 popTail，相当于只有一个本地的 P 作为生产者（Producer），多个 P 作为消费者（Consumer），它是使用一个 local-free 的 queue 列表实现的。
 }
 ```
 
-[`runtime.notifyListWait`](https://github.com/golang/go/blob/a4c579e8f7c8129b2c27779f206ebd2c9b393633/src/runtime/sema.go#L488-L518) 函数会获取当前 Goroutine 并将它追加到 Goroutine 通知链表的最末端：
+
+
+#### Get
 
 ```go
-func notifyListWait(l *notifyList, t uint32) {
-	s := acquireSudog()
-	s.g = getg()
-	s.ticket = t
-	if l.tail == nil {
-		l.head = s
-	} else {
-		l.tail.next = s
+func (p *Pool) Get() interface{} {
+  // 把当前goroutine固定在当前的P上
+  //pin 方法会将此 goroutine 固定在当前的 P 上，避免查找元素期间被其它的 P 执行。固定的好处就是查找元素期间直接得到跟这个 P 相关的 local。直接得到P相关的local又如何？
+    l, pid := p.pin()
+    x := l.private // 优先从local的private字段取，快速
+    l.private = nil
+    if x == nil {
+        // 从当前的local.shared弹出一个，注意是从head读取并移除
+        x, _ = l.shared.popHead()
+        if x == nil { // 如果没有，则去偷一个
+            x = p.getSlow(pid) 
+        }
+    }
+    runtime_procUnpin()
+    // 如果没有获取到，尝试使用New函数生成一个新的
+    if x == nil && p.New != nil {
+        x = p.New()
+    }
+    return x
+}
+
+func (p *Pool) getSlow(pid int) any {
+	size := runtime_LoadAcquintptr(&p.localSize) // load-acquire
+	locals := p.local                            // load-consume
+	// Try to steal one element from other procs.
+	for i := 0; i < int(size); i++ {
+		l := indexLocal(locals, (pid+i+1)%int(size))
+		if x, _ := l.shared.popTail(); x != nil {
+			return x
+		}
 	}
-	l.tail = s
-	goparkunlock(&l.lock, waitReasonSyncCondWait, traceEvGoBlockCond, 3)
-	releaseSudog(s)
+
+	// Try the victim cache. We do this after attempting to steal
+	// from all primary caches because we want objects in the
+	// victim cache to age out if at all possible.
+	size = atomic.LoadUintptr(&p.victimSize)
+	if uintptr(pid) >= size {
+		return nil
+	}
+	locals = p.victim
+	l := indexLocal(locals, pid)
+	if x := l.private; x != nil {
+		l.private = nil
+		return x
+	}
+	for i := 0; i < int(size); i++ {
+		l := indexLocal(locals, (pid+i)%int(size))
+		if x, _ := l.shared.popTail(); x != nil {
+			return x
+		}
+	}
+
+	return nil
 }
 ```
 
-除了将当前 Goroutine 追加到链表的末端之外，我们还会调用 [`runtime.goparkunlock`](https://github.com/golang/go/blob/cfe3cd903f018dec3cb5997d53b1744df4e53909/src/runtime/proc.go#L309-L311) 将当前 Goroutine 陷入休眠状态，该函数也是在 Go 语言切换 Goroutine 时经常会使用的方法，它会直接让出当前处理器的使用权并等待调度器的唤醒。
-
-![golang-cond-notifylist](https://img.draveness.me/2020-01-23-15797104328049-golang-cond-notifylist.png)
-
-**图 6-11 Cond 条件通知列表**
-
-[`sync.Cond.Signal`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L64-L67) 和 [`sync.Cond.Broadcast`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L73-L76) 方法就是用来唤醒调用 [`sync.Cond.Wait`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L52-L58) 陷入休眠的 Goroutine，它们两个的实现有一些细微差别：
-
-- [`sync.Cond.Signal`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L64-L67) 方法会唤醒队列最前面的 Goroutine；
-- [`sync.Cond.Broadcast`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L73-L76) 方法会唤醒队列中全部的 Goroutine；
+#### Put
 
 ```go
-func (c *Cond) Signal() {
-	c.checker.check()
-	runtime_notifyListNotifyOne(&c.notify)
-}
-
-func (c *Cond) Broadcast() {
-	c.checker.check()
-	runtime_notifyListNotifyAll(&c.notify)
+func (p *Pool) Put(x interface{}) {
+    if x == nil { // nil值直接丢弃
+        return
+    }
+    l, _ := p.pin() // 把当前goroutine固定在当前的P上
+    if l.private == nil { // 如果本地private没有值，直接设置这个值即可
+        l.private = x
+        x = nil
+    }
+    if x != nil { // 否则加入到本地队列中
+        l.shared.pushHead(x)
+    }
+    runtime_procUnpin()
 }
 ```
 
-[`runtime.notifyListNotifyOne`](https://github.com/golang/go/blob/a4c579e8f7c8129b2c27779f206ebd2c9b393633/src/runtime/sema.go#L554-L604) 函数只会从 [`sync.notifyList`](https://github.com/golang/go/blob/41cb0aedffdf4c5087de82710c4d016a3634b4ac/src/sync/runtime.go#L33-L39) 链表中找到满足 `sudog.ticket == l.notify` 条件的 Goroutine 并通过 `readyWithTime` 唤醒：
+#### pin
 
 ```go
-func notifyListNotifyOne(l *notifyList) {
-	t := l.notify
-	atomic.Store(&l.notify, t+1)
+//将当前g绑定在P上
+func (p *Pool) pin() (*poolLocal, int) {
+	pid := runtime_procPin()
+	s := runtime_LoadAcquintptr(&p.localSize) // load-acquire
+	l := p.local                          
+	if uintptr(pid) < s {
+		return indexLocal(l, pid), pid     // 通过pid获取当前g所在P对应的poolLocal
+	}
+	return p.pinSlow()
+}
+func (p *Pool) pinSlow() (*poolLocal, int) {
+	// Retry under the mutex.
+	// Can not lock the mutex while pinned.
+	runtime_procUnpin()
+	allPoolsMu.Lock()
+	defer allPoolsMu.Unlock()
+	pid := runtime_procPin()
+	// poolCleanup won't be called while we are pinned.
+	s := p.localSize
+	l := p.local
+	if uintptr(pid) < s {
+		return indexLocal(l, pid), pid
+	}
+	if p.local == nil {
+		allPools = append(allPools, p)
+	}
+	// If GOMAXPROCS changes between GCs, we re-allocate the array and lose the old one.
+	size := runtime.GOMAXPROCS(0)
+	local := make([]poolLocal, size)   //创建poolLocal切片，len=P数量
+	atomic.StorePointer(&p.local, unsafe.Pointer(&local[0])) // store-release
+	runtime_StoreReluintptr(&p.localSize, uintptr(size))     // store-release
+	return &local[pid], pid
+}
+```
 
-	for p, s := (*sudog)(nil), l.head; s != nil; p, s = s, s.next {
-		if s.ticket == t {
-			n := s.next
-			if p != nil {
-				p.next = n
-			} else {
-				l.head = n
-			}
-			if n == nil {
-				l.tail = p
-			}
-			s.next = nil
-			readyWithTime(s, 4)
+#### GC期间
+
+```go
+func poolCleanup() {
+    // 丢弃当前victim, STW所以不用加锁
+    for _, p := range oldPools {
+        p.victim = nil
+        p.victimSize = 0
+    }
+
+    // 将local复制给victim, 并将原local置为nil
+    for _, p := range allPools {
+        p.victim = p.local
+        p.victimSize = p.localSize
+        p.local = nil
+        p.localSize = 0
+    }
+
+    oldPools, allPools = allPools, nil
+}
+```
+
+发生GC时，清空victim，将local赋值给victim，清空local
+
+例如，local中有1000个对象，发生GC的时候，1000个对象被放入victim中。GC后，如果有新请求需要这些对象，从local中找不到，可以从victim中找到，不用重新分配内存创建这些新对象。**可以防止GC前后的请求延迟波动**
+
+![](https://s2.loli.net/2022/06/07/7gqmX2SU8jQluBi.png)
+
+#### 内存泄漏
+
+##### 原因
+
+GC对于sync.Pool大对象的回收策略问题
+
+##### 解决方法
+
+在使用 sync.Pool 回收 buffer 的时候，一定要检查回收的对象的大小。如果 buffer 太大，就不要回收了,否则会导致内存泄漏。
+
+一、要做到物尽其用，尽可能不浪费的话，我们可以将 buffer 池分成几层。
+
+```go
+//标准库http
+var (
+	http2dataChunkSizeClasses = []int{
+		1 << 10,
+		2 << 10,
+		4 << 10,
+		8 << 10,
+		16 << 10,
+	}
+	http2dataChunkPools = [...]sync.Pool{
+		{New: func() interface{} { return make([]byte, 1<<10) }},
+		{New: func() interface{} { return make([]byte, 2<<10) }},
+		{New: func() interface{} { return make([]byte, 4<<10) }},
+		{New: func() interface{} { return make([]byte, 8<<10) }},
+		{New: func() interface{} { return make([]byte, 16<<10) }},
+	}
+)
+
+func http2getDataBufferChunk(size int64) []byte {
+	i := 0
+	for ; i < len(http2dataChunkSizeClasses)-1; i++ {
+		if size <= int64(http2dataChunkSizeClasses[i]) {
+			break
+		}
+	}
+	return http2dataChunkPools[i].Get().([]byte)
+}
+
+func http2putDataBufferChunk(p []byte) {
+	for i, n := range http2dataChunkSizeClasses {
+		if len(p) == n {
+			http2dataChunkPools[i].Put(p)
 			return
 		}
 	}
+	panic(fmt.Sprintf("unexpected buffer len=%v", len(p)))
 }
 ```
 
-[`runtime.notifyListNotifyAll`](https://github.com/golang/go/blob/a4c579e8f7c8129b2c27779f206ebd2c9b393633/src/runtime/sema.go#L522-L550) 会依次通过 [`runtime.readyWithTime`](https://github.com/golang/go/blob/a4c579e8f7c8129b2c27779f206ebd2c9b393633/src/runtime/sema.go#L79-L84) 函数唤醒链表中 Goroutine：
+二、限制放回的大小
 
 ```go
-func notifyListNotifyAll(l *notifyList) {
-	s := l.head
-	l.head = nil
-	l.tail = nil
-
-	atomic.Store(&l.notify, atomic.Load(&l.wait))
-
-	for s != nil {
-		next := s.next
-		s.next = nil
-		readyWithTime(s, 4)
-		s = next
+//fmt包
+func (p *pp) free() {
+	// Proper usage of a sync.Pool requires each entry to have approximately
+	// the same memory cost. To obtain this property when the stored type
+	// contains a variably-sized buffer, we add a hard limit on the maximum buffer
+	// to place back in the pool.
+	//
+	// See https://golang.org/issue/23199
+  //限制放回的大小
+	if cap(p.buf) > 64<<10 {
+		return
 	}
+
+	p.buf = p.buf[:0]
+	p.arg = nil
+	p.value = reflect.Value{}
+	p.wrappedErr = nil
+	ppFree.Put(p)
 }
 ```
 
-Goroutine 的唤醒顺序也是按照加入队列的先后顺序，先加入的会先被唤醒，而后加入的 Goroutine 需要等待调度器的调度。
-
-在一般情况下，我们都会先调用 [`sync.Cond.Wait`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L52-L58) 陷入休眠等待满足期望条件，当满足唤醒条件时，就可以选择使用 [`sync.Cond.Signal`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L64-L67) 或者 [`sync.Cond.Broadcast`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L73-L76) 唤醒一个或者全部的 Goroutine。
-
-### 小结
-
-[`sync.Cond`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L21-L29) 不是一个常用的同步机制，在遇到长时间条件无法满足时，与使用 `for {}` 进行忙碌等待相比，[`sync.Cond`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L21-L29) 能够让出处理器的使用权。在使用的过程中我们需要注意以下问题：
-
-- [`sync.Cond.Wait`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L52-L58) 方法在调用之前一定要使用获取互斥锁，否则会触发程序崩溃；
-- [`sync.Cond.Signal`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L64-L67) 方法唤醒的 Goroutine 都是队列最前面、等待最久的 Goroutine；
-- [`sync.Cond.Broadcast`](https://github.com/golang/go/blob/71bbffbc48d03b447c73da1f54ac57350fc9b36a/src/sync/cond.go#L73-L76) 会按照一定顺序广播通知等待的全部 Goroutine；
 
 
+#### 总结
+
+事实上，我们很少会使用 sync.Pool 去池化连接对象，原因就在于，sync.Pool 会无通知地在某个时候就把连接移除垃圾回收掉了，而我们的场景是需要长久保持这个连接，所以，我们一般会使用其它方法来池化连接
+
+### workPool
+
+#### fasthttp
+
+```go
+type workerPool struct {
+	// Function for serving server connections.
+	// It must leave c unclosed.
+	WorkerFunc ServeHandler
+
+	MaxWorkersCount int
+
+	LogAllErrors bool
+
+	MaxIdleWorkerDuration time.Duration
+
+	Logger Logger
+
+	lock         sync.Mutex
+	workersCount int
+
+	ready []*workerChan //就绪的worker
+
+	stopCh chan struct{}
+
+	workerChanPool sync.Pool
+}
+
+type workerChan struct {
+	lastUseTime time.Time
+	ch          chan net.Conn
+```
+
+```go
+func (s *Server) Serve(ln net.Listener) error {
+  ...
+  //初始化workpool
+  	wp := &workerPool{
+		WorkerFunc:            s.serveConn,
+		MaxWorkersCount:       maxWorkersCount,
+		LogAllErrors:          s.LogAllErrors,
+		MaxIdleWorkerDuration: s.MaxIdleWorkerDuration,
+		Logger:                s.logger(),
+		connState:             s.setState,
+	}
+	wp.Start()
+  for {
+    //Accept拿到net.conn
+		if c, err = acceptConn(s, ln, &lastPerIPErrorTime); err != nil {
+			wp.Stop()
+			if err == io.EOF {
+				return nil
+			}
+			return err
+		}
+    //将Accept到的net.conn放入channel中,无缓冲或缓冲为1
+    if !wp.Serve(c) {
+      ...
+    }
+  }
+}
+func (wp *workerPool) Serve(c net.Conn) bool {
+  //获取ready worker的ch，没有则创建
+	ch := wp.getCh()
+	if ch == nil {
+		return false
+	}
+  //将net.conn放入channel
+	ch.ch <- c
+	return true
+}
+```
 
 
 
+```go
+func (wp *workerPool) getCh() *workerChan {
+   var ch *workerChan
+   createWorker := false
 
+   wp.lock.Lock()
+   ready := wp.ready
+   n := len(ready) - 1
+   if n < 0 {
+      if wp.workersCount < wp.MaxWorkersCount { //默认最多256 * 1024个worker
+         createWorker = true
+         wp.workersCount++
+      }
+   } else {
+      ch = ready[n]
+      ready[n] = nil
+      wp.ready = ready[:n]
+   }
+   wp.lock.Unlock()
 
+   if ch == nil {
+      if !createWorker {
+         return nil
+      }
+      //没有可用worker，创建
+      vch := wp.workerChanPool.Get()
+      ch = vch.(*workerChan)
+      go func() {
+         wp.workerFunc(ch) //从channel中拿取net.conn,并处理
+         wp.workerChanPool.Put(vch)
+      }()
+   }
+   return ch
+}
+```
 
+## Semaphore
 
+信号量（Semaphore）是用来控制**多个 goroutine 同时访问多个资源**的并发原语
 
+```
+function P(semaphore S, integer I):
+    repeat:
+        [if S ≥ I: //等待直到资源数>=I
+        S ← S − I
+        break]
+        
+function V(semaphore S, integer I):
+    [S ← S + I]
+```
 
+使用信号量遵循的原则就是请求多少资源，就释放多少资源
 
+### 死锁的四个条件
 
+- **禁止抢占**（no preemption）：系统资源不能被强制从一个线程中退出。如果哲学家可以抢夺，那么大家都去抢别人的筷子，也会打破死锁的局面，但这是有风险的，因为可能孔子还没吃饭就被老子抢走了。计算机资源如果不是主动释放而是被抢夺有可能出现意想不到的现象。
+- **持有和等待**（hold and wait）：一个线程在等待时持有并发资源。持有并发资源并还等待其它资源，也就是吃着碗里的望着锅里的。
+- **互斥**（mutual exclusion）：资源只能同时分配给一个线程，无法多个线程共享。资源具有排他性，孔子和老子的关系再好，也不允许他们俩一起拿着一根筷同时吃。
+- **循环等待**（circular waiting）：一系列线程互相持有其他进程所需要的资源。必须有一个循环依赖的关系。
 
+死锁只有在四个条件同时满足时发生，预防死锁必须至少破坏其中一项。
 
+### 哲学家就餐问题
 
+#### 解法一: 限制就餐人数
 
+我们把这个信号量初始值设置为4，代表最多允许同时4位哲学家就餐。把这个信号量传给哲学家对象，哲学家想就餐时就请求这个信号量，如果能得到一个许可，就可以就餐，吃完把许可释放回给信号量。
+
+#### 解法二：奇偶资源
+
+我们给每一位哲学家编号，从1到5, 如果我们规定奇数号的哲学家首先拿左手边的筷子，再拿右手边的筷子，偶数号的哲学家先拿右手边的筷子，再拿左手边的筷子， 释放筷子的时候按照相反的顺序，这样也可以避免出现循环依赖的情况。
+
+#### 解法三：资源分级
+
+另一个简单的解法是为资源（这里是筷子）分配一个偏序或者分级的关系，并约定所有资源都按照这种顺序获取，按相反顺序释放，而且保证不会有两个无关资源同时被同一项工作所需要。在哲学家就餐问题中，筷子按照某种规则编号为1至5，每一个工作单元（哲学家）总是先拿起左右两边编号较低的筷子，再拿编号较高的。用完筷子后，他总是先放下编号较高的筷子，再放下编号较低的。在这种情况下，当四位哲学家同时拿起他们手边编号较低的筷子时，只有编号最高的筷子留在桌上，从而第五位哲学家就不能使用任何一只筷子了。而且，只有一位哲学家能使用最高编号的筷子，所以他能使用两只筷子用餐。当他吃完后，他会先放下编号最高的筷子，再放下编号较低的筷子，从而让另一位哲学家拿起后边的这只开始吃东西。
+
+```go
+/ 无休止的进餐和冥想.
+// 吃完睡(冥想、打坐), 睡完吃.
+// 可以调整吃睡的时间来增加或者减少抢夺叉子的机会.
+func (p *Philosopher) dine() {
+    for {
+        mark(p, "冥想")
+        randomPause(10)
+
+        mark(p, "饿了")
+        if p.ID == 5 { //
+            p.rightChopstick.Lock() // 先尝试拿起第1只筷子
+            mark(p, "拿起左手筷子")
+            p.leftChopstick.Lock() // 再尝试拿起第5只筷子
+
+            mark(p, "用膳")
+            randomPause(10)
+
+            p.leftChopstick.Unlock()  // 先尝试放下第5只的筷子
+            p.rightChopstick.Unlock() // 再尝试放下第1只的筷子
+        } else {
+            p.leftChopstick.Lock() // 先尝试拿起左手边的筷子(第n只)
+            mark(p, "拿起右手筷子")
+            p.rightChopstick.Lock() // 再尝试拿起右手边的筷子(第n+1只)
+
+            mark(p, "用膳")
+            randomPause(10)
+
+            p.rightChopstick.Unlock() // 先尝试放下右手边的筷子
+            p.leftChopstick.Unlock()  // 再尝试拿起左手边的筷子
+        }
+
+    }
+}
+```
+
+#### 解法四：引入服务生
+
+如果我们引入一个服务生，比如韩非子，由韩非子负责分配筷子，这样我们就可以将拿左手筷子和右手筷子看成一个原子操作，要么拿到筷子，要么等待，就可以破坏死锁的第二个条件(持有和等待)。
+
+```go
+type Philosopher struct {
+    // 哲学家的名字
+    name string
+    // 左手一只和右手一只筷子
+    leftChopstick, rightChopstick *Chopstick
+    status                        string
+
+    mu *sync.Mutex
+}
+
+// 无休止的进餐和冥想.
+// 吃完睡(冥想、打坐), 睡完吃.
+// 可以调整吃睡的时间来增加或者减少抢夺叉子的机会.
+func (p *Philosopher) dine() {
+    for {
+        mark(p, "冥想")
+        randomPause(10)
+
+        mark(p, "饿了")
+        p.mu.Lock() // 服务生控制
+        p.leftChopstick.Lock() // 先尝试拿起左手边的筷子
+        mark(p, "拿起左手筷子")
+        p.rightChopstick.Lock() // 再尝试拿起右手边的筷子
+        p.mu.Unlock() 
+
+        mark(p, "用膳")
+        randomPause(10)
+
+        p.rightChopstick.Unlock() // 先尝试放下右手边的筷子
+        p.leftChopstick.Unlock()  // 再尝试拿起左手边的筷子
+    }
+}
+```
+
+### go内置Semaphore
+
+<img src="https://s2.loli.net/2022/06/13/PUcfTBowlXGpQi8.png" style="zoom:20%;" />
+
+#### 数据结构
+
+```go
+type semaRoot struct {
+	lock  mutex
+	treap *sudog // root of balanced tree of unique waiters.
+	nwait uint32 // Number of waiters. Read w/o the lock.
+}
+
+const semTabSize = 251
+var semtable [semTabSize]struct {
+   root semaRoot //树
+   pad  [cpu.CacheLinePadSize - unsafe.Sizeof(semaRoot{})]byte
+}
+
+func semroot(addr *uint32) *semaRoot {
+  //通过计算(信号量地址>>3%251),选择251棵树中其中一颗
+	return &semtable[(uintptr(unsafe.Pointer(addr))>>3)%semTabSize].root
+}
+```
